@@ -24,6 +24,7 @@ urlpatterns += [
 urlpatterns += [
     path('empleado/', views.dashboard_empleado, name='dashboard_empleado'),  # Dashboard del empleado
     path('empleado/aceptar-tarea/<int:tarea_id>/', views.aceptar_tarea, name='aceptar_tarea'),
+    path('notificaciones/leidas/', views.marcar_notificaciones_leidas, name='marcar_notificaciones_leidas')
 ]
 
 # Vistas para jefes
@@ -31,6 +32,8 @@ urlpatterns += [
     path('jefe/', views.dashboard_jefe, name='dashboard_jefe'),  # Dashboard del jefe
     path('jefe/crear-tarea/', views.jefe_crear_tarea, name='jefe_crear_tarea'),  # Crear tarea
     path('jefe/empleados/', views.jefe_empleados, name='jefe_empleados'),  # Ver empleados
+    path('notificaciones/leidasJefe/', views.marcar_notificaciones_leidas_Jefe, name='marcar_notificaciones_leidas_Jefe')
+
 ]
 
 # Gestión de tareas por el jefe

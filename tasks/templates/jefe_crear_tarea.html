@@ -86,18 +86,6 @@
 
                 <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Nueva Tarea</h3>
-                    {% if form.errors %}
-  <div class="bg-red-50 border-l-4 border-red-400 text-red-800 p-4 rounded-lg mb-6">
-    <p class="font-semibold mb-2">❌ Por favor corrige los siguientes errores:</p>
-    <ul class="list-disc list-inside text-sm space-y-1">
-      {% for field in form %}
-        {% for error in field.errors %}
-          <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-        {% endfor %}
-      {% endfor %}
-    </ul>
-  </div>
-{% endif %}
                     <form method="post" class="space-y-4">
                         {% csrf_token %}
                         {% for field in form %}

@@ -67,6 +67,10 @@
           {% if notificaciones %}
           <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg">
             <p class="font-semibold mb-2">🔔 Notificaciones recientes:</p>
+            <a href="{% url 'marcar_notificaciones_leidas' %}"
+            class="text-sm text-blue-600 hover:underline font-medium">
+           Marcar todas como leídas
+         </a>
             <ul class="list-disc list-inside text-sm space-y-1">
               {% for notif in notificaciones %}
               <li>
@@ -110,6 +114,7 @@
               <span
                 class="px-2.5 py-0.5 text-xs font-medium rounded-full {% if tarea.completada %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
                 {% if tarea.completada %}Completada{% else %}Pendiente{% endif %}
+                
               </span>
             </div>
             <p class="text-gray-600 mb-3">{{ tarea.descripcion }}</p>

@@ -190,6 +190,9 @@ def dashboard_empleado(request):
 
             tarea.completada = True
             tarea.fecha_completada = timezone.now()
+            Notificacion.objects.create(
+            usuario=tarea.jefe,
+            mensaje=f"{request.user.username} ha completado la tarea: {tarea.titulo}")
             tarea.save()
 
             return redirect('dashboard_empleado')
@@ -219,3 +222,13 @@ def aceptar_tarea(request, tarea_id):
         )
 
     return redirect('dashboard_empleado')
+
+@login_required
+def marcar_notificaciones_leidas(request):
+    Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+    return redirect('dashboard_empleado')  # O 'dashboard_jefe' si es para el jefe
+
+@login_required
+def marcar_notificaciones_leidas_Jefe(request):
+    Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+    return redirect('dashboard_jefe')  # O 'dashboard_jefe' si es para el jefe

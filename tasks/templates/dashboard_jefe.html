@@ -21,9 +21,12 @@
     </script>
 </head>
 
+
+
 <body class="bg-gray-50">
     <div class="min-h-screen flex flex-col">
         <!-- Navbar -->
+
         <nav class="bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-50">
             <div class="flex flex-wrap justify-between items-center">
                 <div class="flex items-center">
@@ -50,10 +53,28 @@
 
         <div class="flex flex-1 pt-16">
             <!-- Sidebar -->
+
             <aside class="w-64 bg-white border-r border-gray-200 h-full fixed top-16 left-0 bottom-0 overflow-y-auto">
                 <div class="px-3 py-4">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4 px-3">Panel de Control del Jefe</h2>
                     <ul class="space-y-2">
+                        {% if notificaciones %}
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg">
+                            <p class="font-semibold mb-2">🔔 Notificaciones recientes:</p>
+                            <a href="{% url 'marcar_notificaciones_leidas_Jefe' %}"
+                                class="text-sm text-blue-600 hover:underline font-medium">
+                                Marcar todas como leídas
+                            </a>
+                            <ul class="list-disc list-inside text-sm space-y-1">
+                                {% for notif in notificaciones %}
+                                <li>
+                                    {{ notif.mensaje }}
+                                    <span class="text-xs text-gray-500">— {{ notif.fecha|timesince }} atrás</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
                         <li>
                             <a href="{% url 'jefe_crear_tarea' %}"
                                 class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
@@ -64,6 +85,7 @@
                                 <span class="ml-3">Crear Tarea</span>
                             </a>
                         </li>
+
                         <li>
                             <a href="{% url 'jefe_empleados' %}"
                                 class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
@@ -99,19 +121,6 @@
                             </div>
                         </div>
                     </div>
-                    {% if notificaciones %}
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg">
-                        <p class="font-semibold mb-2">🔔 Notificaciones recientes:</p>
-                        <ul class="list-disc list-inside text-sm space-y-1">
-                            {% for notif in notificaciones %}
-                            <li>
-                                {{ notif.mensaje }}
-                                <span class="text-xs text-gray-500">— {{ notif.fecha|timesince }} atrás</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
 
                     <!-- Tareas Completadas -->
                     <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
