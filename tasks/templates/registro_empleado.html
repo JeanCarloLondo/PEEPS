@@ -1,0 +1,71 @@
+{% load widget_tweaks %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Empleado - PEEPS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#fdf2f8","100":"#fce7f3","200":"#fbcfe8","300":"#f9a8d4","400":"#f472b6","500":"#ec4899","600":"#db2777","700":"#be185d","800":"#9d174d","900":"#831843","950":"#500724"}
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen flex-col items-center justify-center px-6 py-8 mx-auto">
+        <a href="{% url 'index' %}" class="flex items-center mb-6 text-2xl font-semibold text-gray-900">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+            PEEPS
+        </a>
+        <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                    Registro - Empleado
+                </h1>
+                <form class="space-y-4 md:space-y-6" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900">{{ field.label }}</label>
+                            {{ field|add_class:"bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" }}
+                            {% if field.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ field.errors|join:", " }}</p>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Registrarse</button>
+                    <p class="text-sm font-light text-gray-500">
+                        ¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="font-medium text-primary-600 hover:underline">Iniciar sesión</a>
+                    </p>
+                    <p class="text-sm font-light text-gray-500">
+                        ¿Eres jefe de tienda? <a href="{% url 'registro_jefe' %}" class="font-medium text-primary-600 hover:underline">Registrarse como Jefe</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Añadir clase a los campos del formulario
+        function add_class(field, className) {
+            if (field.classList) {
+                field.classList.add(...className.split(' '));
+            }
+            return field;
+        }
+    </script>
+</body>
+</html>

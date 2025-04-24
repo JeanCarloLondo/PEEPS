@@ -1,0 +1,190 @@
+# Django utils y decoradores
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+# Formularios
+from .forms import (
+    RegistroEmpleadoForm,
+    RegistroJefeForm,
+    CrearTareaForm,
+    EvidenciaForm,
+    CalificacionForm
+)
+
+# Modelos
+from .models import EmpleadoPerfil, Tarea, Evidencia, Calificacion
+
+
+@login_required
+def LogoutView(request):
+    logout(request)
+    return redirect('index')
+
+def index(request):
+    return render(request, 'index.html')
+
+def registro_empleado(request):
+    if request.method == 'POST':
+        form = RegistroEmpleadoForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('redireccion_dashboard')
+    else:
+        form = RegistroEmpleadoForm()
+    return render(request, 'registro_empleado.html', {'form': form})
+
+def registro_jefe(request):
+    if request.method == 'POST':
+        form = RegistroJefeForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('redireccion_dashboard')
+    else:
+        form = RegistroJefeForm()
+    return render(request, 'registro_jefe.html', {'form': form})
+
+@login_required
+def redireccion_dashboard(request):
+    try:
+        perfil = EmpleadoPerfil.objects.get(user=request.user)
+        return redirect('dashboard_jefe' if perfil.es_jefe else 'dashboard_empleado')
+    except EmpleadoPerfil.DoesNotExist:
+        return render(request, 'tasks/no_perfil.html')
+
+@login_required
+def dashboard_jefe(request):
+    jefe = EmpleadoPerfil.objects.get(user=request.user)
+    tareas_qs = Tarea.objects.filter(jefe=request.user)
+    tareas_recientes = tareas_qs.order_by('-fecha_asignacion')[:5]
+
+    return render(request, 'dashboard_jefe.html', {
+        'tareas_recientes': tareas_recientes,
+        'tareas_pendientes': tareas_qs.filter(completada=False).count(),
+        'tareas_completadas': tareas_qs.filter(completada=True).count(),
+        'empleado_count': EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False).count(),
+        'inventario_count': 145  # Valor simulado
+    })
+
+@login_required
+def jefe_crear_tarea(request):
+    jefe = EmpleadoPerfil.objects.get(user=request.user)
+    empleados = EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False)
+    tareas = Tarea.objects.filter(jefe=request.user)
+
+    if request.method == 'POST':
+        form = CrearTareaForm(request.POST)
+        form.fields['empleados'].queryset = empleados
+        if form.is_valid():
+            tarea = form.save(commit=False)
+            tarea.jefe = request.user
+            tarea.save()
+            form.save_m2m()
+            return redirect('jefe_crear_tarea')
+    else:
+        form = CrearTareaForm()
+        form.fields['empleados'].queryset = empleados
+
+    return render(request, 'jefe_crear_tarea.html', {'form': form, 'tareas': tareas})
+
+@login_required
+def eliminar_tarea(request, tarea_id):
+    tarea = get_object_or_404(Tarea, id=tarea_id, jefe=request.user)
+    tarea.delete()
+    return redirect('jefe_crear_tarea')
+
+@login_required
+def detalle_tarea(request, tarea_id):
+    tarea = get_object_or_404(Tarea, id=tarea_id, jefe=request.user)
+    evidencias = Evidencia.objects.filter(tarea=tarea)
+    calificacion = Calificacion.objects.filter(tarea=tarea).first()
+
+    if request.method == 'POST' and tarea.completada and not calificacion:
+        form = CalificacionForm(request.POST)
+        if form.is_valid():
+            cal = form.save(commit=False)
+            cal.tarea = tarea
+            cal.save()
+            return redirect('detalle_tarea', tarea_id=tarea.id)
+    else:
+        form = CalificacionForm()
+
+    return render(request, 'detalle_tarea.html', {
+        'tarea': tarea,
+        'evidencias': evidencias,
+        'form': form,
+        'calificacion': calificacion
+    })
+
+@login_required
+def jefe_empleados(request):
+    jefe = EmpleadoPerfil.objects.get(user=request.user)
+    empleados = EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False)
+
+    data = []
+    empleados_activos = 0
+    tareas_pendientes = 0
+
+    for emp in empleados:
+        tareas_activas = emp.tareas_asignadas.filter(completada=False)
+        tareas_hechas = emp.tareas_asignadas.filter(completada=True)
+
+        if tareas_activas.exists():
+            empleados_activos += 1
+            tareas_pendientes += tareas_activas.count()
+
+        data.append({
+            'empleado': emp,
+            'tiene_tarea': tareas_activas.exists(),
+            'cantidad_tareas': tareas_activas.count(),
+            'tareas_pendientes': tareas_activas,
+            'tareas_completadas': tareas_hechas
+        })
+
+    return render(request, 'jefe_empleados.html', {
+        'data': data,
+        'empleados': empleados,
+        'empleados_activos': empleados_activos,
+        'tareas_pendientes': tareas_pendientes,
+    })
+
+@login_required
+def jefe_inventario(request):
+    return render(request, 'jefe_inventario.html')
+
+@login_required
+def dashboard_empleado(request):
+    perfil = EmpleadoPerfil.objects.get(user=request.user)
+    tareas = Tarea.objects.filter(empleados=perfil)
+    tareas_pendientes = tareas.filter(completada=False)
+    tareas_completadas = tareas.filter(completada=True)
+
+    if request.method == 'POST':
+        tarea_id = request.POST.get('tarea_id')
+        tarea = Tarea.objects.get(id=tarea_id)
+        form = EvidenciaForm(request.POST, request.FILES)
+        if form.is_valid():
+            evidencia = form.save(commit=False)
+            evidencia.empleado = perfil
+            evidencia.tarea = tarea
+            evidencia.save()
+
+            tarea.completada = True
+            tarea.fecha_completada = timezone.now()
+            tarea.save()
+
+            return redirect('dashboard_empleado')
+    else:
+        form = EvidenciaForm()
+
+    return render(request, 'dashboard_empleado.html', {
+        'tareas': tareas,
+        'tareas_pendientes': tareas_pendientes,
+        'tareas_completadas': tareas_completadas,
+        'form': form
+    })
+

@@ -1,0 +1,286 @@
+{% load widget_tweaks %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empleados - PEEPS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#fdf2f8","100":"#fce7f3","200":"#fbcfe8","300":"#f9a8d4","400":"#f472b6","500":"#ec4899","600":"#db2777","700":"#be185d","800":"#9d174d","900":"#831843","950":"#500724"}
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex flex-col">
+        <!-- Navbar -->
+        <nav class="bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-50">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mr-3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+                    </svg>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">PEEPS</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex flex-1 pt-16">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-white border-r border-gray-200 h-full fixed top-16 left-0 bottom-0 overflow-y-auto">
+                <div class="px-3 py-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 px-3">Panel de Control del Jefe</h2>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="{% url 'dashboard_jefe' %}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                                </svg>
+                                <span class="ml-3">Panel Principal</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'jefe_crear_tarea' %}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                                <span class="ml-3">Crear Tarea</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'jefe_empleados' %}" class="flex items-center p-3 text-white bg-primary-600 rounded-lg group">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                </svg>
+                                <span class="ml-3">Empleados y estado</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'jefe_inventario' %}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+                                </svg>
+                                <span class="ml-3">Inventario</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'logout' %}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                                </svg>
+                                <span class="ml-3">Cerrar sesión</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main content -->
+            <main class="ml-64 p-6 flex-1">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">👥 Empleados</h2>
+                    <p class="text-gray-600">Gestiona y supervisa a tus empleados</p>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-blue-600 bg-blue-100 rounded-lg mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total Empleados</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ empleados|length }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-green-600 bg-green-100 rounded-lg mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Activos</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ empleados_activos }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-yellow-600 bg-yellow-100 rounded-lg mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Tareas Pendientes</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ tareas_pendientes }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Lista de Empleados</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Nombre</th>
+                                    <th scope="col" class="px-6 py-3">Email</th>
+                                    <th scope="col" class="px-6 py-3">Estado</th>
+                                    <th scope="col" class="px-6 py-3">Tareas Asignadas</th>
+                                    <th scope="col" class="px-6 py-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                        {{ item.empleado.user.username }}
+                                    </th>
+                                    <td class="px-6 py-4">
+                                        {{ item.empleado.user.email }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="h-2.5 w-2.5 rounded-full {% if item.tiene_tarea %}bg-green-500{% else %}bg-yellow-500{% endif %} mr-2"></div>
+                                            {% if item.tiene_tarea %}Con tarea{% else %}Sin tarea{% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {{ item.cantidad_tareas }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr class="bg-white border-b">
+                                    <td colspan="5" class="px-6 py-4 text-center">No hay empleados registrados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <tbody>
+                    {% for item in data %}
+                      <!-- Fila principal del empleado -->
+                      <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                          {{ item.empleado.user.username }}
+                        </td>
+                        <td class="px-6 py-4">{{ item.empleado.user.email }}</td>
+                        <td class="px-6 py-4">
+                          <div class="flex items-center">
+                            <div class="h-2.5 w-2.5 rounded-full {% if item.tiene_tarea %}bg-green-500{% else %}bg-yellow-500{% endif %} mr-2"></div>
+                            {% if item.tiene_tarea %}Con tarea{% else %}Sin tarea{% endif %}
+                          </div>
+                        </td>
+                        <td class="px-6 py-4">{{ item.cantidad_tareas }}</td>
+                        <td class="px-6 py-4 text-gray-400 italic">--</td>
+                        <td class="px-6 py-4 text-primary-600">--</td>
+                      </tr>
+                  
+                      <!-- Subfila con detalles de tareas -->
+                      <tr class="bg-gray-50 border-b">
+                        <td colspan="6" class="px-6 py-4">
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                            <!-- Tareas Pendientes -->
+                            <div class="bg-white border border-yellow-200 rounded-lg p-4 shadow-sm">
+                              <h4 class="text-sm font-semibold text-yellow-700 flex items-center mb-3">
+                                <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                Tareas Pendientes
+                              </h4>
+                              <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+                                {% for tarea in item.tareas_pendientes %}
+                                  <li>
+                                    <span class="font-medium text-gray-900">{{ tarea.titulo }}</span>
+                                    <span class="text-xs text-gray-500 ml-1">— asignada el {{ tarea.fecha_asignacion|date:"d M H:i" }}</span>
+                                  </li>
+                                {% empty %}
+                                  <li class="text-gray-400 italic">No tiene tareas pendientes.</li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                  
+                            <!-- Tareas Completadas -->
+                            <div class="bg-white border border-green-200 rounded-lg p-4 shadow-sm">
+                              <h4 class="text-sm font-semibold text-green-700 flex items-center mb-3">
+                                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Tareas Completadas
+                              </h4>
+                              <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+                                {% for tarea in item.tareas_completadas %}
+                                  <li>
+                                    <span class="font-medium text-gray-900">{{ tarea.titulo }}</span>
+                                    <span class="text-xs text-gray-500 ml-1">— {{ tarea.fecha_completada|date:"d M H:i" }}</span>
+                                  </li>
+                                {% empty %}
+                                  <li class="text-gray-400 italic">No tiene tareas completadas.</li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                  
+                          </div>
+                        </td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="6" class="px-6 py-4 text-center">No hay empleados registrados.</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                                    
+                
+                <!-- Gráfico de rendimiento -->
+                <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Rendimiento de Empleados</h3>
+                    <div class="space-y-4">
+                        {% for empleado in empleados %}
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">{{ empleado.user.username }}</span>
+                                <span class="text-sm font-medium text-gray-700">
+                                    {% if empleado.rendimiento == 'Alto' %}85%
+                                    {% elif empleado.rendimiento == 'Medio' %}65%
+                                    {% else %}40%{% endif %}
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="h-2.5 rounded-full 
+                                    {% if empleado.rendimiento == 'Alto' %}bg-green-500 w-[85%]
+                                    {% elif empleado.rendimiento == 'Medio' %}bg-yellow-500 w-[65%]
+                                    {% else %}bg-red-500 w-[40%]{% endif %}">
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500 text-center">No hay datos de rendimiento disponibles.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
