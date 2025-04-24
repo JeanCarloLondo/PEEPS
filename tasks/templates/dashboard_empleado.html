@@ -103,7 +103,15 @@
                   <h5 class="font-medium text-gray-900 mb-2">Subir evidencia</h5>
                   <form method="post" enctype="multipart/form-data" class="space-y-4">
                     {% csrf_token %}
-                    {{ form.as_p|add_class:"space-y-4" }}
+                    {% for field in form %}
+                    <div class="mb-4">
+                      {{ field.label_tag }}
+                      {{ field|add_class:"w-full p-2.5 border border-gray-300 rounded-lg" }}
+                      {% if field.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
                     <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
                     <button type="submit" class="w-full sm:w-auto text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
