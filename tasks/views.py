@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django import forms
 
 # Formularios
 from .forms import (
@@ -15,7 +16,7 @@ from .forms import (
 )
 
 # Modelos
-from .models import EmpleadoPerfil, Tarea, Evidencia, Calificacion
+from .models import EmpleadoPerfil, Tarea, Evidencia, Calificacion, Notificacion
 
 
 @login_required
@@ -58,16 +59,18 @@ def redireccion_dashboard(request):
 
 @login_required
 def dashboard_jefe(request):
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha')
     jefe = EmpleadoPerfil.objects.get(user=request.user)
     tareas_qs = Tarea.objects.filter(jefe=request.user)
     tareas_recientes = tareas_qs.order_by('-fecha_asignacion')[:5]
+
 
     return render(request, 'dashboard_jefe.html', {
         'tareas_recientes': tareas_recientes,
         'tareas_pendientes': tareas_qs.filter(completada=False).count(),
         'tareas_completadas': tareas_qs.filter(completada=True).count(),
         'empleado_count': EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False).count(),
-        'inventario_count': 145  # Valor simulado
+        'notificaciones': notificaciones
     })
 
 @login_required
@@ -84,12 +87,27 @@ def jefe_crear_tarea(request):
             tarea.jefe = request.user
             tarea.save()
             form.save_m2m()
-            return redirect('jefe_crear_tarea')
+             # ✅ Notificar a cada empleado asignado (dentro del if)
+        for emp in form.cleaned_data['empleados']:
+            Notificacion.objects.create(
+                usuario=emp.user,
+                mensaje=f"Tu jefe de tienda te ha asignado una nueva tarea: {tarea.titulo}"
+            )
+
+        return redirect('jefe_crear_tarea')
+            
     else:
         form = CrearTareaForm()
         form.fields['empleados'].queryset = empleados
 
     return render(request, 'jefe_crear_tarea.html', {'form': form, 'tareas': tareas})
+
+@login_required
+def clean_empleados(self):
+    empleados = self.cleaned_data.get('empleados')
+    if not empleados:
+        raise forms.ValidationError("Debes asignar al menos un empleado.")
+    return empleados
 
 @login_required
 def eliminar_tarea(request, tarea_id):
@@ -153,11 +171,8 @@ def jefe_empleados(request):
     })
 
 @login_required
-def jefe_inventario(request):
-    return render(request, 'jefe_inventario.html')
-
-@login_required
 def dashboard_empleado(request):
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha')
     perfil = EmpleadoPerfil.objects.get(user=request.user)
     tareas = Tarea.objects.filter(empleados=perfil)
     tareas_pendientes = tareas.filter(completada=False)
@@ -185,6 +200,22 @@ def dashboard_empleado(request):
         'tareas': tareas,
         'tareas_pendientes': tareas_pendientes,
         'tareas_completadas': tareas_completadas,
-        'form': form
+        'form': form,
+        'notificaciones': notificaciones
     })
 
+@login_required
+def aceptar_tarea(request, tarea_id):
+    tarea = get_object_or_404(Tarea, id=tarea_id)
+    empleado = EmpleadoPerfil.objects.get(user=request.user)
+
+    if empleado in tarea.empleados.all() and empleado not in tarea.aceptada_por.all():
+        tarea.aceptada_por.add(empleado)
+
+        # Notificar al jefe
+        Notificacion.objects.create(
+            usuario=tarea.jefe,
+            mensaje=f"{empleado.user.username} ha aceptado la tarea: {tarea.titulo}"
+        )
+
+    return redirect('dashboard_empleado')

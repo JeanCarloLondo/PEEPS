@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,34 +13,42 @@
       theme: {
         extend: {
           colors: {
-            primary: {"50":"#fdf2f8","100":"#fce7f3","200":"#fbcfe8","300":"#f9a8d4","400":"#f472b6","500":"#ec4899","600":"#db2777","700":"#be185d","800":"#9d174d","900":"#831843","950":"#500724"}
+            primary: { "50": "#fdf2f8", "100": "#fce7f3", "200": "#fbcfe8", "300": "#f9a8d4", "400": "#f472b6", "500": "#ec4899", "600": "#db2777", "700": "#be185d", "800": "#9d174d", "900": "#831843", "950": "#500724" }
           }
         }
       }
     }
   </script>
 </head>
+
 <body class="bg-gray-50">
   <div class="min-h-screen flex flex-col">
     <!-- Navbar -->
     <nav class="bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-50">
       <div class="flex flex-wrap justify-between items-center">
         <div class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mr-3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-8 h-8 text-primary-600 mr-3">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
           </svg>
           <span class="self-center text-2xl font-semibold whitespace-nowrap">PEEPS</span>
         </div>
         <div class="flex items-center">
           <div class="flex items-center mr-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500 mr-1">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 text-gray-500 mr-1">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
             </svg>
             <span class="text-sm font-medium">Bienvenido, {{ request.user.username }}</span>
           </div>
-          <a href="{% url 'logout' %}" class="text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 border border-gray-300">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+          <a href="{% url 'logout' %}"
+            class="text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 border border-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 inline-block mr-1">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
             </svg>
             Cerrar sesión
           </a>
@@ -55,82 +64,112 @@
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Bienvenido, {{ request.user.username }}</h2>
             <p class="text-gray-600">Aquí puedes ver y gestionar tus tareas asignadas</p>
           </div>
-
+          {% if notificaciones %}
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg">
+            <p class="font-semibold mb-2">🔔 Notificaciones recientes:</p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+              {% for notif in notificaciones %}
+              <li>
+                {{ notif.mensaje }}
+                <span class="text-xs text-gray-500">— {{ notif.fecha|timesince }} atrás</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
           <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
+
               <!-- Total de tareas -->
               <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
                 <p class="text-2xl font-bold text-gray-900">{{ tareas|length }}</p>
                 <p class="text-sm text-gray-500">Total de tareas</p>
               </div>
-          
+
               <!-- Tareas pendientes -->
               <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
                 <p class="text-2xl font-bold text-gray-900">{{ tareas_pendientes|length }}</p>
                 <p class="text-sm text-gray-500">Tareas pendientes</p>
               </div>
-          
+
               <!-- Tareas completadas -->
               <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
                 <p class="text-2xl font-bold text-gray-900">{{ tareas_completadas|length }}</p>
                 <p class="text-sm text-gray-500">Tareas completadas</p>
               </div>
-          
+
             </div>
-          </div>          
+          </div>
 
           <h3 class="text-xl font-bold text-gray-900 mb-4">Tareas asignadas</h3>
 
           {% for tarea in tareas %}
-            <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-4">
-              <div class="flex justify-between items-start mb-2">
-                <h4 class="text-lg font-semibold text-gray-900">{{ tarea.titulo }}</h4>
-                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {% if tarea.completada %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                  {% if tarea.completada %}Completada{% else %}Pendiente{% endif %}
-                </span>
-              </div>
-              <p class="text-gray-600 mb-3">{{ tarea.descripcion }}</p>
-              <div class="flex items-center text-sm text-gray-500 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                Tiempo estimado: {{ tarea.tiempo_estimado }}
-              </div>
-
-              {% if not tarea.completada %}
-                <div class="border-t border-gray-200 pt-4">
-                  <h5 class="font-medium text-gray-900 mb-2">Subir evidencia</h5>
-                  <form method="post" enctype="multipart/form-data" class="space-y-4">
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="mb-4">
-                      {{ field.label_tag }}
-                      {{ field|add_class:"w-full p-2.5 border border-gray-300 rounded-lg" }}
-                      {% if field.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
-                      {% endif %}
-                    </div>
-                  {% endfor %}
-                    <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
-                    <button type="submit" class="w-full sm:w-auto text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                      </svg>
-                      Marcar como completada
-                    </button>
-                  </form>
-                </div>
-              {% endif %}
+          <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-4">
+            <div class="flex justify-between items-start mb-2">
+              <h4 class="text-lg font-semibold text-gray-900">{{ tarea.titulo }}</h4>
+              <span
+                class="px-2.5 py-0.5 text-xs font-medium rounded-full {% if tarea.completada %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                {% if tarea.completada %}Completada{% else %}Pendiente{% endif %}
+              </span>
             </div>
-          {% empty %}
-            <div class="bg-white rounded-lg border border-gray-200 p-8 shadow-sm text-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400 mb-3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+            <p class="text-gray-600 mb-3">{{ tarea.descripcion }}</p>
+            <div class="flex items-center text-sm text-gray-500 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5 mr-1">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
-              <p class="text-gray-600 mb-1">No tienes tareas asignadas.</p>
-              <p class="text-sm text-gray-500">Cuando tu jefe te asigne tareas, aparecerán aquí.</p>
+              Tiempo estimado: {{ tarea.tiempo_estimado }}
             </div>
+
+            {% if not tarea.completada %}
+            {% if request.user.empleadoperfil in tarea.aceptada_por.all %}
+            <!-- Mostrar formulario de subir evidencia -->
+            ...
+            {% else %}
+            <a href="{% url 'aceptar_tarea' tarea.id %}"
+              class="block text-center text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+              Aceptar Tarea
+            </a>
+            {% endif %}
+          
+            <div class="border-t border-gray-200 pt-4">
+              <h5 class="font-medium text-gray-900 mb-2">Subir evidencia</h5>
+              <form method="post" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-4">
+                  {{ field.label_tag }}
+                  {{ field|add_class:"w-full p-2.5 border border-gray-300 rounded-lg" }}
+                  {% if field.errors %}
+                  <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                  {% endif %}
+                </div>
+                {% endfor %}
+                <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+                <button type="submit"
+                  class="w-full sm:w-auto text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 inline-block mr-1">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                  </svg>
+                  Marcar como completada
+                </button>
+              </form>
+            </div>
+            {% endif %}
+          </div>
+          {% empty %}
+          <div class="bg-white rounded-lg border border-gray-200 p-8 shadow-sm text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400 mb-3">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+            </svg>
+            <p class="text-gray-600 mb-1">No tienes tareas asignadas.</p>
+            <p class="text-sm text-gray-500">Cuando tu jefe te asigne tareas, aparecerán aquí.</p>
+          </div>
           {% endfor %}
         </div>
       </main>
@@ -147,4 +186,5 @@
     }
   </script>
 </body>
+
 </html>

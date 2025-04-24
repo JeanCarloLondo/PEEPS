@@ -27,6 +27,7 @@ class Tarea(models.Model):
     fecha_asignacion = models.DateTimeField(auto_now_add=True)
     completada = models.BooleanField(default=False)
     fecha_completada = models.DateTimeField(null=True, blank=True)
+    aceptada_por = models.ManyToManyField(EmpleadoPerfil, blank=True, related_name="tareas_aceptadas")
 
     def __str__(self):
         return self.titulo
@@ -55,3 +56,13 @@ class Calificacion(models.Model):
 
     def __str__(self):
         return f"Calificación: {self.puntuacion} - {self.tarea.titulo}"
+    
+# This model is for notifications related to tasks and employees.
+class Notificacion(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    mensaje = models.TextField()
+    leida = models.BooleanField(default=False)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Para {self.usuario.username} - {'Leída' if self.leida else 'No leída'}"
