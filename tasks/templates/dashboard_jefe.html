@@ -85,7 +85,17 @@
                                 <span class="ml-3">Crear Tarea</span>
                             </a>
                         </li>
-
+                        <li>
+                            <a href="{% url 'revisar_tareas' %}"
+                                class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9 12h6m-6 4h6m-3-10v.01M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                </svg>
+                                <span class="ml-3">Revisar Tareas</span>
+                            </a>
+                        </li>
                         <li>
                             <a href="{% url 'jefe_empleados' %}"
                                 class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
@@ -105,6 +115,7 @@
             </aside>
 
             <main class="ml-64 p-6 flex-1">
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
                     <!-- Tareas Pendientes -->
@@ -150,66 +161,66 @@
                         </div>
                     </div>
 
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                        <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                            <h3 class="text-lg font-semibold mb-4">Tareas Recientes</h3>
-                            <div class="space-y-3">
-                                {% for tarea in tareas_recientes %}
-                                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                    <div class="flex justify-between">
-                                        <span class="font-medium">{{ tarea.titulo }}</span>
-                                        <span class="text-xs text-gray-500">
-                                            {{ tarea.fecha_asignacion|timesince }} atrás
-                                        </span>
-                                    </div>
-                                    <p class="text-sm text-gray-500">
-                                        Asignada a:
-                                        {% for emp in tarea.empleados.all %}
-                                        {{ emp.user.get_full_name|default:emp.user.username }}{% if not forloop.last %},
-                                        {% endif %}
-                                        {% endfor %}
-                                    </p>
+                </div> <!-- CIERRA este bloque de estadísticas -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Tareas Recientes</h3>
+                        <div class="space-y-3">
+                            {% for tarea in tareas_recientes %}
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">{{ tarea.titulo }}</span>
+                                    <span class="text-xs text-gray-500">
+                                        {{ tarea.fecha_asignacion|timesince }} atrás
+                                    </span>
                                 </div>
-                                {% empty %}
-                                <p class="text-sm text-gray-400">No hay tareas recientes.</p>
-                                {% endfor %}
+                                <p class="text-sm text-gray-500">
+                                    Asignada a:
+                                    {% for emp in tarea.empleados.all %}
+                                    {{ emp.user.get_full_name|default:emp.user.username }}{% if not forloop.last %},
+                                    {% endif %}
+                                    {% endfor %}
+                                </p>
                             </div>
-                        </div>
-                        <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                            <h3 class="text-lg font-semibold mb-4">Accesos Rápidos</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <a href="{% url 'jefe_crear_tarea' %}"
-                                    class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mb-2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M12 4.5v15m7.5-7.5h-15" />
-                                    </svg>
-                                    <span class="text-sm font-medium">Crear Tarea</span>
-                                </a>
-                                <a href="{% url 'jefe_empleados' %}"
-                                    class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mb-2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                                    </svg>
-                                    <span class="text-sm font-medium">Empleados</span>
-                                </a>
-
-                                <a href="{% url 'logout' %}"
-                                    class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-600 mb-2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-                                    </svg>
-                                    <span class="text-sm font-medium">Cerrar sesión</span>
-                                </a>
-                            </div>
+                            {% empty %}
+                            <p class="text-sm text-gray-400">No hay tareas recientes.</p>
+                            {% endfor %}
                         </div>
                     </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Accesos Rápidos</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="{% url 'jefe_crear_tarea' %}"
+                                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mb-2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                                <span class="text-sm font-medium">Crear Tarea</span>
+                            </a>
+                            <a href="{% url 'jefe_empleados' %}"
+                                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mb-2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                </svg>
+                                <span class="text-sm font-medium">Empleados</span>
+                            </a>
+
+                            <a href="{% url 'logout' %}"
+                                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-600 mb-2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                                </svg>
+                                <span class="text-sm font-medium">Cerrar sesión</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>

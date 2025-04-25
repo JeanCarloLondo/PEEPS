@@ -121,6 +121,8 @@ def detalle_tarea(request, tarea_id):
     evidencias = Evidencia.objects.filter(tarea=tarea)
     calificacion = Calificacion.objects.filter(tarea=tarea).first()
 
+    form = None  # 👈 aseguramos que 'form' existe
+
     if request.method == 'POST' and tarea.completada and not calificacion:
         form = CalificacionForm(request.POST)
         if form.is_valid():
@@ -128,8 +130,8 @@ def detalle_tarea(request, tarea_id):
             cal.tarea = tarea
             cal.save()
             return redirect('detalle_tarea', tarea_id=tarea.id)
-    else:
-        form = CalificacionForm()
+    elif tarea.completada and not calificacion:
+        form = CalificacionForm()  # 👈 solo mostramos el formulario si se puede calificar
 
     return render(request, 'detalle_tarea.html', {
         'tarea': tarea,
@@ -232,3 +234,12 @@ def marcar_notificaciones_leidas(request):
 def marcar_notificaciones_leidas_Jefe(request):
     Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
     return redirect('dashboard_jefe')  # O 'dashboard_jefe' si es para el jefe
+
+@login_required
+def revisar_tareas(request):
+    jefe = EmpleadoPerfil.objects.get(user=request.user)
+    tareas = Tarea.objects.filter(jefe=request.user).order_by('-fecha_asignacion')
+
+    return render(request, 'revisar_tareas.html', {
+        'tareas': tareas,
+    })

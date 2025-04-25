@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import EmpleadoPerfil, Tienda, Tarea, Evidencia
 from .models import Calificacion
+from .models import Tarea, Evidencia, Calificacion
 
 class RegistroEmpleadoForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
@@ -52,11 +53,13 @@ class CrearTareaForm(forms.ModelForm):
         label="Asignar a empleados"
     )
 
+    prioridad = forms.ChoiceField(choices=Tarea.PRIORIDADES, label="Prioridad")
+
     class Meta:
         model = Tarea
-        fields = ['titulo', 'descripcion', 'tiempo_estimado', 'empleados']
+        fields = ['titulo', 'descripcion', 'tiempo_estimado', 'empleados', 'prioridad']
         widgets = {
-            'tiempo_estimado': forms.TextInput(attrs={'placeholder': 'hh:mm:ss'}),
+            'tiempo_estimado': forms.TextInput(attrs={'placeholder': 'hh:mm'}),
         }
 
 
@@ -66,8 +69,9 @@ class EvidenciaForm(forms.ModelForm):
         fields = ['comentario', 'foto']
 
 class CalificacionForm(forms.ModelForm):
-    puntuacion = forms.IntegerField(min_value=1, max_value=5, label="Puntuación (1–5)")
-
     class Meta:
         model = Calificacion
-        fields = ['puntuacion', 'comentario']
+        fields = ['puntaje']
+        widgets = {
+            'puntaje': forms.RadioSelect(choices=[(i, '⭐' * i) for i in range(1, 6)])
+        }

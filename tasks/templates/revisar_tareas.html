@@ -1,0 +1,44 @@
+{% load static %}
+{% block content %}
+
+<div class="p-6">
+  <h1 class="text-2xl font-bold mb-4">📋 Revisar Tareas</h1>
+
+  {% for tarea in tareas %}
+  <div class="bg-white shadow rounded-lg p-4 mb-4 border">
+    <div class="flex justify-between">
+      <div>
+        <h2 class="text-xl font-semibold">{{ tarea.titulo }}</h2>
+        <p class="text-sm text-gray-500 mb-2">Asignada a:
+          {% for emp in tarea.empleados.all %}
+            {{ emp.user.get_full_name|default:emp.user.username }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </p>
+        <p class="text-sm">📅 {{ tarea.fecha_asignacion|timesince }} atrás | ⏳ {{ tarea.tiempo_estimado }} | ⭐ Prioridad: {{ tarea.get_prioridad_display }}</p>
+        <p class="text-sm font-medium">
+          Estado: 
+          {% if tarea.completada %}
+            <span class="text-green-600">Finalizada</span>
+          {% elif tarea.aceptada_por.count > 0 %}
+            <span class="text-yellow-600">En progreso</span>
+          {% else %}
+            <span class="text-gray-600">Pendiente</span>
+          {% endif %}
+        </p>
+      </div>
+
+      <div class="flex flex-col justify-center space-y-2">
+        {% if tarea.completada %}
+          <a href="{% url 'detalle_tarea' tarea.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Revisar Tarea</a>
+        {% elif tarea.aceptada_por.count > 0 %}
+          <a href="#" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Cancelar</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-gray-500">No hay tareas asignadas aún.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

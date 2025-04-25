@@ -28,16 +28,22 @@ class Tarea(models.Model):
     completada = models.BooleanField(default=False)
     fecha_completada = models.DateTimeField(null=True, blank=True)
     aceptada_por = models.ManyToManyField(EmpleadoPerfil, blank=True, related_name="tareas_aceptadas")
+    
+    PRIORIDADES = [
+        ('Baja', 'Baja'),
+        ('Media', 'Media'),
+        ('Alta', 'Alta'),
+    ]
+    prioridad = models.CharField(max_length=10, choices=PRIORIDADES, default='Media')
 
     def __str__(self):
         return self.titulo
 
     def tiempo_real_ejecucion(self):
         if self.completada and self.fecha_completada:
+            # Aquí puedes hacer lógica para buscar la primera aceptación también
             return self.fecha_completada - self.fecha_asignacion
         return None
-
-
 class Evidencia(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     empleado = models.ForeignKey(EmpleadoPerfil, on_delete=models.CASCADE)
@@ -51,11 +57,11 @@ class Evidencia(models.Model):
 
 class Calificacion(models.Model):
     tarea = models.OneToOneField(Tarea, on_delete=models.CASCADE)
-    puntuacion = models.IntegerField()
+    puntaje = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)], default=3)
     comentario = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"Calificación: {self.puntuacion} - {self.tarea.titulo}"
+    
+def __str__(self):
+    return f"Calificación: {self.puntuacion} - {self.tarea.titulo}"
     
 # This model is for notifications related to tasks and employees.
 class Notificacion(models.Model):
@@ -66,3 +72,10 @@ class Notificacion(models.Model):
 
     def __str__(self):
         return f"Para {self.usuario.username} - {'Leída' if self.leida else 'No leída'}"
+class AceptacionTarea(models.Model):
+    tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
+    empleado = models.ForeignKey(EmpleadoPerfil, on_delete=models.CASCADE)
+    fecha_aceptacion = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.empleado.user.username} aceptó {self.tarea.titulo}"
