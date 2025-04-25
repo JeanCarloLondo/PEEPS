@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from datetime import timedelta
 
 class Tienda(models.Model):
     nombre = models.CharField(max_length=100)
@@ -41,9 +42,11 @@ class Tarea(models.Model):
 
     def tiempo_real_ejecucion(self):
         if self.completada and self.fecha_completada:
-            # Aquí puedes hacer lógica para buscar la primera aceptación también
-            return self.fecha_completada - self.fecha_asignacion
-        return None
+            aceptacion = AceptacionTarea.objects.filter(tarea=self).order_by('fecha_aceptacion').first()
+            if aceptacion:
+                return self.fecha_completada - aceptacion.fecha_aceptacion
+            return timedelta(0)  # Si no hay aceptación, devuelve 0
+
 class Evidencia(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     empleado = models.ForeignKey(EmpleadoPerfil, on_delete=models.CASCADE)

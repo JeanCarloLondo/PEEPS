@@ -24,7 +24,9 @@ urlpatterns += [
 urlpatterns += [
     path('empleado/', views.dashboard_empleado, name='dashboard_empleado'),  # Dashboard del empleado
     path('empleado/aceptar-tarea/<int:tarea_id>/', views.aceptar_tarea, name='aceptar_tarea'),
-    path('notificaciones/leidas/', views.marcar_notificaciones_leidas, name='marcar_notificaciones_leidas')
+    path('notificaciones/leidas/', views.marcar_notificaciones_leidas, name='marcar_notificaciones_leidas'),
+    path('tarea/<int:tarea_id>/detalle-empleado/', views.detalle_tarea_empleado, name='detalle_tarea_empleado')
+
 ]
 
 # Vistas para jefes

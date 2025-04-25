@@ -68,9 +68,9 @@
           <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg">
             <p class="font-semibold mb-2">🔔 Notificaciones recientes:</p>
             <a href="{% url 'marcar_notificaciones_leidas' %}"
-            class="text-sm text-blue-600 hover:underline font-medium">
-           Marcar todas como leídas
-         </a>
+              class="text-sm text-blue-600 hover:underline font-medium">
+              Marcar todas como leídas
+            </a>
             <ul class="list-disc list-inside text-sm space-y-1">
               {% for notif in notificaciones %}
               <li>
@@ -111,12 +111,15 @@
           <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-4">
             <div class="flex justify-between items-start mb-2">
               <h4 class="text-lg font-semibold text-gray-900">{{ tarea.titulo }}</h4>
+              <a href="{% url 'detalle_tarea_empleado' tarea.id %}" class="btn btn-outline-primary btn-sm">Ver
+                detalles</a>
+
               <span
                 class="px-2.5 py-0.5 text-xs font-medium rounded-full {% if tarea.completada %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                {% if tarea.completada %}Completada{% else %}Pendiente{% endif %}
-                
+                {% if tarea.completada %}Completada{% else %}Pendiente {% endif %}
               </span>
             </div>
+
             <p class="text-gray-600 mb-3">{{ tarea.descripcion }}</p>
             <div class="flex items-center text-sm text-gray-500 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -127,17 +130,40 @@
               Tiempo estimado: {{ tarea.tiempo_estimado }}
             </div>
 
+            {% if tarea.completada %}
+            {% with calificacion=tarea.calificacion_set.first %}
+            {% if calificacion %}
+            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p class="font-medium text-blue-800">Calificación:</p>
+              <div class="flex items-center mt-1">
+                {% for _ in "12345" %}
+                {% if forloop.counter <= calificacion.puntaje %} <span class="text-yellow-400">★</span>
+                  {% else %}
+                  <span class="text-gray-300">★</span>
+                  {% endif %}
+                  {% endfor %}
+                  <span class="ml-2 text-sm text-gray-600">
+                    ({{ calificacion.puntaje }}/5)
+                  </span>
+              </div>
+              {% if calificacion.comentario %}
+              <p class="mt-2 text-sm text-gray-700 italic">
+                "{{ calificacion.comentario }}"
+              </p>
+              {% endif %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% if tarea.tiempo_real_ejecucion %}
+            <div class="mt-2 text-sm text-gray-600">
+              <p>Tiempo de ejecución: <strong>{{ tarea.tiempo_real_ejecucion }}</strong></p>
+            </div>
+            {% endif %}
+            {% endif %}
+
             {% if not tarea.completada %}
             {% if request.user.empleadoperfil in tarea.aceptada_por.all %}
-            <!-- Mostrar formulario de subir evidencia -->
-            ...
-            {% else %}
-            <a href="{% url 'aceptar_tarea' tarea.id %}"
-              class="block text-center text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
-              Aceptar Tarea
-            </a>
-            {% endif %}
-          
             <div class="border-t border-gray-200 pt-4">
               <h5 class="font-medium text-gray-900 mb-2">Subir evidencia</h5>
               <form method="post" enctype="multipart/form-data" class="space-y-4">
@@ -163,6 +189,12 @@
                 </button>
               </form>
             </div>
+            {% else %}
+            <a href="{% url 'aceptar_tarea' tarea.id %}"
+              class="block text-center text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+              Aceptar Tarea
+            </a>
+            {% endif %}
             {% endif %}
           </div>
           {% empty %}

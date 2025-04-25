@@ -31,9 +31,12 @@
                     <h2 class="text-2xl font-bold text-gray-900 mb-2">📋 Detalle de Tarea</h2>
                     <p class="text-gray-600">Información completa sobre la tarea</p>
                 </div>
-                <a href="{% url 'jefe_crear_tarea' %}" class="text-gray-700 hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center border border-gray-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                <a href="{% url 'revisar_tareas' %}"
+                    class="text-gray-700 hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center border border-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-5 h-5 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
                     </svg>
                     Volver a tareas
                 </a>
@@ -42,8 +45,21 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
                 <div class="flex justify-between items-start mb-4">
                     <h3 class="text-xl font-bold text-gray-900">{{ tarea.titulo }}</h3>
-                    <span class="px-3 py-1 text-xs font-medium rounded-full {% if tarea.completada %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                        {% if tarea.completada %}Completada{% else %}Pendiente{% endif %}
+                    <span
+                        class="px-3 py-1 text-xs font-medium rounded-full {% if tarea.completada %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {% if tarea.completada %}
+                        <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                            <p class="font-medium text-gray-800">Tiempo de ejecución:</p>
+                            <p class="text-lg">
+                                {{ tarea.tiempo_real_ejecucion|default:"No registrado" }}
+                            </p>
+                            {% if tarea.tiempo_real_ejecucion %}
+                            <p class="text-sm text-gray-600 mt-1">
+                                (Desde aceptación hasta finalización)
+                            </p>
+                            {% endif %}
+                        </div>
+                        Completada{% else %}Pendiente{% endif %}
                     </span>
                 </div>
 
@@ -73,7 +89,8 @@
                             <h4 class="text-sm font-medium text-gray-500 mb-1">Empleados asignados</h4>
                             <div class="flex flex-wrap gap-2 mt-2">
                                 {% for empleado in tarea.empleados.all %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     {{ empleado.user.username }}
                                 </span>
                                 {% empty %}
@@ -89,10 +106,12 @@
                             <p class="text-gray-800 italic mb-3">{{ evidencia.comentario }}</p>
 
                             <a href="{{ evidencia.foto.url }}" target="_blank">
-                                <img src="{{ evidencia.foto.url }}" alt="Evidencia" class="w-full max-w-md rounded shadow">
+                                <img src="{{ evidencia.foto.url }}" alt="Evidencia"
+                                    class="w-full max-w-md rounded shadow">
                             </a>
 
-                            <a href="{{ evidencia.foto.url }}" download class="text-blue-600 hover:underline text-sm mt-2 inline-block">Descargar imagen</a>
+                            <a href="{{ evidencia.foto.url }}" download
+                                class="text-blue-600 hover:underline text-sm mt-2 inline-block">Descargar imagen</a>
                         </div>
                         {% endfor %}
                         {% endif %}
@@ -104,25 +123,30 @@
             <form method="post" class="mt-4">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700">Calificar</button>
+                <button type="submit"
+                    class="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700">Calificar</button>
             </form>
             {% elif calificacion %}
-            <p class="mt-4 text-green-700">Tarea calificada con: <strong>{{ calificacion.puntaje }} estrellas</strong></p>
+            <p class="mt-4 text-green-700">Tarea calificada con: <strong>{{ calificacion.puntaje }} estrellas</strong>
+            </p>
             {% endif %}
 
             {% if tarea.completada and tarea.fecha_completada and tarea.aceptada_por.exists %}
-            <p class="mt-4 text-sm text-gray-600">Tiempo total de ejecución: <strong>{{ tarea.tiempo_real_ejecucion }}</strong></p>
+            <p class="mt-4 text-sm text-gray-600">Tiempo total de ejecución: <strong>{{ tarea.tiempo_real_ejecucion
+                    }}</strong></p>
             {% endif %}
 
             {% if not tarea.completada %}
             <div class="mt-6 flex flex-wrap gap-3">
-                <a href="{% url 'editar_tarea' tarea.id %}" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                <a href="{% url 'editar_tarea' tarea.id %}"
+                    class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
                     <!-- ícono editar -->
                     Editar tarea
                 </a>
                 <form method="post" action="{% url 'eliminar_tarea' tarea.id %}" class="inline-block">
                     {% csrf_token %}
-                    <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                    <button type="submit"
+                        class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
                         <!-- ícono eliminar -->
                         Eliminar tarea
                     </button>

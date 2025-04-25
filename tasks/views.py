@@ -5,6 +5,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django import forms
+from .models import AceptacionTarea
+from django.utils.timezone import localtime
 
 # Formularios
 from .forms import (
@@ -129,6 +131,12 @@ def detalle_tarea(request, tarea_id):
             cal = form.save(commit=False)
             cal.tarea = tarea
             cal.save()
+             # Notificar a cada empleado asignado
+            for empleado in tarea.empleados.all():
+                Notificacion.objects.create(
+                    usuario=empleado.user,
+                    mensaje=f"Tu tarea '{tarea.titulo}' ha sido calificada con {cal.puntaje} estrellas")
+            
             return redirect('detalle_tarea', tarea_id=tarea.id)
     elif tarea.completada and not calificacion:
         form = CalificacionForm()  # 👈 solo mostramos el formulario si se puede calificar
@@ -177,6 +185,14 @@ def dashboard_empleado(request):
     notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha')
     perfil = EmpleadoPerfil.objects.get(user=request.user)
     tareas = Tarea.objects.filter(empleados=perfil)
+    # Obtener calificaciones para mostrar
+    tareas_con_calificacion = []
+    for tarea in tareas:
+        calificacion = Calificacion.objects.filter(tarea=tarea).first()
+        tareas_con_calificacion.append({
+            'tarea': tarea,
+            'calificacion': calificacion
+        })
     tareas_pendientes = tareas.filter(completada=False)
     tareas_completadas = tareas.filter(completada=True)
 
@@ -206,7 +222,8 @@ def dashboard_empleado(request):
         'tareas_pendientes': tareas_pendientes,
         'tareas_completadas': tareas_completadas,
         'form': form,
-        'notificaciones': notificaciones
+        'notificaciones': notificaciones,
+        'tareas_con_calificacion': tareas_con_calificacion
     })
 
 @login_required
@@ -217,7 +234,13 @@ def aceptar_tarea(request, tarea_id):
     if empleado in tarea.empleados.all() and empleado not in tarea.aceptada_por.all():
         tarea.aceptada_por.add(empleado)
 
-        # Notificar al jefe
+        # 💾 Guardar la hora local de aceptación
+        AceptacionTarea.objects.create(
+            tarea=tarea,
+            empleado=empleado,
+            fecha_aceptacion=localtime()  # Hora local (Colombia si settings está bien)
+        )
+
         Notificacion.objects.create(
             usuario=tarea.jefe,
             mensaje=f"{empleado.user.username} ha aceptado la tarea: {tarea.titulo}"
@@ -242,4 +265,22 @@ def revisar_tareas(request):
 
     return render(request, 'revisar_tareas.html', {
         'tareas': tareas,
+    })
+    
+@login_required
+def detalle_tarea_empleado(request, tarea_id):
+    perfil = EmpleadoPerfil.objects.get(user=request.user)
+    tarea = get_object_or_404(Tarea, id=tarea_id, empleados=perfil)
+    
+    # Validar que el empleado tiene acceso a esta tarea
+    if perfil not in tarea.empleados.all():
+        return redirect('dashboard_empleado')
+
+    calificacion = Calificacion.objects.filter(tarea=tarea).first()
+    evidencias = Evidencia.objects.filter(tarea=tarea, empleado=perfil)
+
+    return render(request, 'detalle_tarea_empleado.html', {
+        'tarea': tarea,
+        'calificacion': calificacion,
+        'evidencias': evidencias
     })
