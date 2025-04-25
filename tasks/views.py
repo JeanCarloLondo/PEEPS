@@ -115,7 +115,7 @@ def clean_empleados(self):
 def eliminar_tarea(request, tarea_id):
     tarea = get_object_or_404(Tarea, id=tarea_id, jefe=request.user)
     tarea.delete()
-    return redirect('jefe_crear_tarea')
+    return redirect('revisar_tareas')
 
 @login_required
 def detalle_tarea(request, tarea_id):
