@@ -213,6 +213,65 @@
     </div>
   </div>
 
+  <div class="mt-12">
+    <h3 class="text-xl font-bold text-gray-900 mb-4">Historial de tareas finalizadas</h3>
+
+    <!-- Filtros -->
+    <div class="mb-4 flex gap-2">
+      <a href="?filtro=todas"
+        class="px-4 py-2 rounded-lg {% if fecha_filtro == 'todas' %}bg-primary-600 text-white{% else %}bg-gray-100{% endif %}">
+        Todas
+      </a>
+      <a href="?filtro=semana"
+        class="px-4 py-2 rounded-lg {% if fecha_filtro == 'semana' %}bg-primary-600 text-white{% else %}bg-gray-100{% endif %}">
+        Última semana
+      </a>
+      <a href="?filtro=mes"
+        class="px-4 py-2 rounded-lg {% if fecha_filtro == 'mes' %}bg-primary-600 text-white{% else %}bg-gray-100{% endif %}">
+        Último mes
+      </a>
+    </div>
+
+    <!-- Listado de tareas -->
+    {% for tarea in tareas_completadas %}
+    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-4">
+      <div class="flex justify-between items-start mb-2">
+        <h4 class="text-lg font-semibold text-gray-900">{{ tarea.titulo }}</h4>
+        <span class="text-sm text-gray-500">
+          {{ tarea.fecha_completada|date:"d M Y H:i" }}
+        </span>
+      </div>
+
+      <p class="text-gray-600 mb-3">{{ tarea.descripcion }}</p>
+
+      {% if tarea.calificacion %}
+      <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+        <div class="flex items-center">
+          {% for _ in "12345" %}
+          {% if forloop.counter <= tarea.calificacion.puntaje %} <span class="text-yellow-400">★</span>
+            {% else %}
+            <span class="text-gray-300">★</span>
+            {% endif %}
+            {% endfor %}
+            <span class="ml-2 text-sm text-gray-600">
+              ({{ tarea.calificacion.puntaje }}/5)
+            </span>
+        </div>
+        {% if tarea.calificacion.comentario %}
+        <p class="mt-2 text-sm text-gray-700 italic">
+          "{{ tarea.calificacion.comentario }}"
+        </p>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-lg border border-gray-200 p-8 shadow-sm text-center">
+      <p class="text-gray-600">No hay tareas finalizadas en este período</p>
+    </div>
+    {% endfor %}
+  </div>
+
   <script>
     // Añadir clase a los campos del formulario
     function add_class(field, className) {

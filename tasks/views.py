@@ -7,6 +7,7 @@ from django.utils import timezone
 from django import forms
 from .models import AceptacionTarea
 from django.utils.timezone import localtime
+from datetime import timedelta
 
 # Formularios
 from .forms import (
@@ -184,6 +185,7 @@ def jefe_empleados(request):
 def dashboard_empleado(request):
     notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha')
     perfil = EmpleadoPerfil.objects.get(user=request.user)
+    fecha_filtro = request.GET.get('filtro', 'todas')
     tareas = Tarea.objects.filter(empleados=perfil)
     # Obtener calificaciones para mostrar
     tareas_con_calificacion = []
@@ -196,6 +198,20 @@ def dashboard_empleado(request):
     tareas_pendientes = tareas.filter(completada=False)
     tareas_completadas = tareas.filter(completada=True)
 
+ # Base query para tareas completadas
+    tareas_completadas = Tarea.objects.filter(
+        empleados=perfil, 
+        completada=True
+    ).prefetch_related('calificacion').order_by('-fecha_completada')
+    
+    # Aplicar filtros de fecha
+    if fecha_filtro == 'semana':
+        start_date = timezone.now() - timedelta(days=7)
+        tareas_completadas = tareas_completadas.filter(fecha_completada__gte=start_date)
+    elif fecha_filtro == 'mes':
+        start_date = timezone.now() - timedelta(days=30)
+        tareas_completadas = tareas_completadas.filter(fecha_completada__gte=start_date)
+        
     if request.method == 'POST':
         tarea_id = request.POST.get('tarea_id')
         tarea = Tarea.objects.get(id=tarea_id)
@@ -221,6 +237,7 @@ def dashboard_empleado(request):
         'tareas': tareas,
         'tareas_pendientes': tareas_pendientes,
         'tareas_completadas': tareas_completadas,
+        'fecha_filtro': fecha_filtro,
         'form': form,
         'notificaciones': notificaciones,
         'tareas_con_calificacion': tareas_con_calificacion
