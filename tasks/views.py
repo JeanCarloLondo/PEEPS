@@ -7,7 +7,7 @@ from django.utils import timezone
 from django import forms
 from .models import AceptacionTarea
 from django.utils.timezone import localtime
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 # Formularios
 from .forms import (
@@ -150,36 +150,142 @@ def detalle_tarea(request, tarea_id):
     })
 
 @login_required
-def jefe_empleados(request):
-    jefe = EmpleadoPerfil.objects.get(user=request.user)
-    empleados = EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False)
+def jefe_empleados(request): # MODIFIED FUNCTION
+    jefe = EmpleadoPerfil.objects.get(user=request.user, es_jefe=True)
+    
+    # --- Filtering ---
+    selected_employee_id_str = request.GET.get('empleado_id')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
-    data = []
-    empleados_activos = 0
-    tareas_pendientes = 0
+    # Base queryset for employees to display in the detailed list
+    empleados_qs_for_list = EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False)
+    
+    selected_employee_id_int = None
+    if selected_employee_id_str:
+        try:
+            selected_employee_id_int = int(selected_employee_id_str)
+            empleados_qs_for_list = empleados_qs_for_list.filter(id=selected_employee_id_int)
+        except ValueError:
+            pass # Invalid employee_id, show all for list
 
-    for emp in empleados:
-        tareas_activas = emp.tareas_asignadas.filter(completada=False)
-        tareas_hechas = emp.tareas_asignadas.filter(completada=True)
+    # --- Stats for the top cards (Store-wide) ---
+    all_jefe_employees_storewide = EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False)
+    total_empleados_count_card = all_jefe_employees_storewide.count()
+    
+    empleados_activos_count_card = 0
+    tareas_pendientes_total_count_card = 0
+    active_employee_ids = set()
 
-        if tareas_activas.exists():
-            empleados_activos += 1
-            tareas_pendientes += tareas_activas.count()
+    for emp_stat in all_jefe_employees_storewide:
+        if emp_stat.tareas_asignadas.filter(completada=False).exists():
+            active_employee_ids.add(emp_stat.id)
+        tareas_pendientes_total_count_card += emp_stat.tareas_asignadas.filter(completada=False).count()
+    empleados_activos_count_card = len(active_employee_ids)
+    # --- End Stats for top cards ---
 
-        data.append({
-            'empleado': emp,
-            'tiene_tarea': tareas_activas.exists(),
-            'cantidad_tareas': tareas_activas.count(),
-            'tareas_pendientes': tareas_activas,
-            'tareas_completadas': tareas_hechas
+    data_list = [] # Renamed from 'data' to avoid confusion with individual item 'data_item' in template
+    for emp_perfil in empleados_qs_for_list:
+        tareas_asignadas_historico = emp_perfil.tareas_asignadas.all()
+        num_tareas_asignadas_historico = tareas_asignadas_historico.count()
+
+        tareas_pendientes_empleado = tareas_asignadas_historico.filter(completada=False).order_by('-fecha_asignacion')
+        
+        tareas_completadas_base = tareas_asignadas_historico.filter(completada=True)
+        
+        tareas_completadas_periodo = tareas_completadas_base
+        if fecha_inicio_str:
+            try:
+                fecha_inicio_dt = timezone.make_aware(datetime.strptime(fecha_inicio_str, '%Y-%m-%d'))
+                tareas_completadas_periodo = tareas_completadas_periodo.filter(fecha_completada__gte=fecha_inicio_dt)
+            except ValueError: pass
+        if fecha_fin_str:
+            try:
+                fecha_fin_dt = timezone.make_aware(datetime.combine(datetime.strptime(fecha_fin_str, '%Y-%m-%d'), datetime.max.time()))
+                tareas_completadas_periodo = tareas_completadas_periodo.filter(fecha_completada__lte=fecha_fin_dt)
+            except ValueError: pass
+
+        num_tareas_completadas_periodo = tareas_completadas_periodo.count()
+
+        detailed_completed_tasks_list = []
+        current_total_score_for_ranking = 0
+        current_sum_of_ratings_periodo = 0
+        current_count_of_rated_tasks_periodo = 0
+
+        for tarea_item in tareas_completadas_periodo.select_related('jefe').prefetch_related('evidencia_set', 'calificacion'):
+            tiempo_real = tarea_item.tiempo_real_ejecucion()
+            tiempo_estimado = tarea_item.tiempo_estimado
+            
+            evidencias_tarea_empleado_list = Evidencia.objects.filter(tarea=tarea_item, empleado=emp_perfil)
+            
+            calificacion_tarea_item = None
+            try:
+                calificacion_tarea_item = tarea_item.calificacion
+            except Calificacion.DoesNotExist:
+                pass
+
+            rating_points_task = 0
+            if calificacion_tarea_item:
+                rating_points_task = calificacion_tarea_item.puntaje
+                current_sum_of_ratings_periodo += rating_points_task
+                current_count_of_rated_tasks_periodo += 1
+
+            timeliness_points_task = 0
+            if tiempo_estimado and tiempo_estimado.total_seconds() > 0:
+                if tiempo_real and tiempo_real.total_seconds() > 0:
+                    if tiempo_real <= tiempo_estimado:
+                        timeliness_points_task = 2
+                    elif tiempo_real.total_seconds() <= tiempo_estimado.total_seconds() * 1.5:
+                        timeliness_points_task = 1
+                elif not tiempo_real or tiempo_real.total_seconds() == 0: # Completed instantly or not accepted
+                     timeliness_points_task = 2
+            
+            current_total_score_for_ranking += rating_points_task + timeliness_points_task
+
+            detailed_completed_tasks_list.append({
+                'id': tarea_item.id,
+                'titulo': tarea_item.titulo,
+                'tiempo_estimado': tiempo_estimado,
+                'tiempo_real_ejecucion': tiempo_real,
+                'fecha_completada': tarea_item.fecha_completada,
+                'evidencias': evidencias_tarea_empleado_list,
+                'calificacion': calificacion_tarea_item,
+                'rating_points': rating_points_task,
+                'timeliness_points': timeliness_points_task,
+                'task_score': rating_points_task + timeliness_points_task,
+            })
+        
+        avg_rating_periodo_empleado = (current_sum_of_ratings_periodo / current_count_of_rated_tasks_periodo) if current_count_of_rated_tasks_periodo > 0 else 0
+
+        data_list.append({
+            'empleado': emp_perfil,
+            'tiene_tarea_pendiente': tareas_pendientes_empleado.exists(),
+            'cantidad_tareas_pendientes': tareas_pendientes_empleado.count(),
+            'tareas_pendientes_list': tareas_pendientes_empleado,
+            
+            'num_tareas_asignadas_historico': num_tareas_asignadas_historico,
+            'num_tareas_completadas_periodo': num_tareas_completadas_periodo,
+            'detailed_completed_tasks_list': detailed_completed_tasks_list,
+            'avg_rating_periodo': avg_rating_periodo_empleado,
+            'num_tareas_calificadas_periodo': current_count_of_rated_tasks_periodo,
+            'performance_score': current_total_score_for_ranking,
         })
 
-    return render(request, 'jefe_empleados.html', {
-        'data': data,
-        'empleados': empleados,
-        'empleados_activos': empleados_activos,
-        'tareas_pendientes': tareas_pendientes,
-    })
+    data_list.sort(key=lambda x: x['performance_score'], reverse=True)
+
+    context = {
+        'data_list': data_list,
+        'empleados_count_for_card': total_empleados_count_card,
+        'empleados_activos_for_card': empleados_activos_count_card,
+        'tareas_pendientes_total_for_card': tareas_pendientes_total_count_card,
+        
+        'all_employees_for_filter': all_jefe_employees_storewide, # For the filter dropdown
+        'selected_employee_id': selected_employee_id_int,
+        'fecha_inicio_str': fecha_inicio_str,
+        'fecha_fin_str': fecha_fin_str,
+        'notificaciones': Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha'),
+    }
+    return render(request, 'jefe_empleados.html', context)
 
 @login_required
 def dashboard_empleado(request):
