@@ -1,4 +1,5 @@
 {% load widget_tweaks %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -171,7 +172,21 @@
               </div>
             </div>
           </div>
-
+{% if config_tienda.recordatorios_activos and config_tienda.metodo_recordatorios == 'pantalla' and tareas_proximas %}
+<div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-lg">
+  <div class="flex items-center">
+    <svg class="w-5 h-5 text-red-700 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <h3 class="text-red-700 font-semibold">Recordatorios de tareas próximas a vencer:</h3>
+  </div>
+  <ul class="mt-2 ml-7 list-disc">
+   {% for tarea, mensaje in tareas_proximas %}
+  <li class="text-red-700 text-sm">{{ tarea.titulo }} – {{ mensaje }}</li>
+{% endfor %}
+  </ul>
+</div>
+{% endif %}
           <!-- Notificaciones mejoradas -->
           {% if notificaciones %}
           <div id="notifications" class="bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg shadow-sm">
@@ -275,7 +290,7 @@
                 Tareas asignadas
               </h3>
               <div class="text-sm text-gray-500">
-                Mostrando {{ tareas_pendientes|length }} tarea(s)
+                Mostrando {{ tareas|length }} tarea(s)
               </div>
             </div>
 
@@ -645,10 +660,13 @@
               {% endfor %}
             </div>
           </div>
+          
         </div>
       </main>
     </div>
   </div>
+
+
 
   <!-- Footer -->
   <footer class="bg-white border-t border-gray-200 py-4 mt-8">
@@ -672,6 +690,9 @@
         });
       }
     });
+
+
+    
   </script>
 </body>
 

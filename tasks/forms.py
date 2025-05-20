@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import EmpleadoPerfil, Tienda, Tarea, Evidencia
 from .models import Calificacion
 from .models import Tarea, Evidencia, Calificacion
+from .models import TiendaConfiguracion
 
 class RegistroEmpleadoForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
@@ -59,7 +60,7 @@ class CrearTareaForm(forms.ModelForm):
         model = Tarea
         fields = ['titulo', 'descripcion', 'tiempo_estimado', 'empleados', 'prioridad']
         widgets = {
-            'tiempo_estimado': forms.TextInput(attrs={'placeholder': 'hh:mm'}),
+            'tiempo_estimado': forms.TextInput(attrs={'placeholder': 'hh:mm:ss'}),
         }
 
 
@@ -74,4 +75,11 @@ class CalificacionForm(forms.ModelForm):
         fields = ['puntaje']
         widgets = {
             'puntaje': forms.RadioSelect(choices=[(i, '⭐' * i) for i in range(1, 6)])
+        }  
+class TiendaConfiguracionForm(forms.ModelForm):
+    class Meta:
+        model = TiendaConfiguracion
+        fields = ['recordatorios_activos', 'metodo_recordatorios']
+        widgets = {
+            'metodo_recordatorios': forms.RadioSelect
         }

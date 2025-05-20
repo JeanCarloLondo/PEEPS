@@ -82,3 +82,16 @@ class AceptacionTarea(models.Model):
 
     def __str__(self):
         return f"{self.empleado.user.username} aceptó {self.tarea.titulo}"
+    
+class TiendaConfiguracion(models.Model):
+     METODOS = [
+        ('pantalla', 'Mostrar en pantalla'),
+        ('correo', 'Enviar por correo'),
+    ]
+    
+     tienda = models.OneToOneField(Tienda, on_delete=models.CASCADE, related_name='configuracion')
+     recordatorios_activos = models.BooleanField(default=True)
+     metodo_recordatorios = models.CharField(max_length=10, choices=METODOS, default='pantalla')
+
+     def __str__(self):
+        return f"Configuración de {self.tienda.nombre}"

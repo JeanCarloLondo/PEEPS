@@ -15,11 +15,12 @@ from .forms import (
     RegistroJefeForm,
     CrearTareaForm,
     EvidenciaForm,
-    CalificacionForm
+    CalificacionForm,
+    TiendaConfiguracionForm
 )
 
 # Modelos
-from .models import EmpleadoPerfil, Tarea, Evidencia, Calificacion, Notificacion
+from .models import EmpleadoPerfil, Tarea, Evidencia, Calificacion, Notificacion, TiendaConfiguracion
 
 
 @login_required
@@ -303,13 +304,50 @@ def dashboard_empleado(request):
         })
     tareas_pendientes = tareas.filter(completada=False)
     tareas_completadas = tareas.filter(completada=True)
+    empleado_perfil = EmpleadoPerfil.objects.get(user=request.user)
+    
+    # Calcular tareas próximas a vencer
+    tareas_proximas = []
+    ahora = timezone.now()
+    for tarea in tareas_pendientes:
+     if empleado_perfil in tarea.aceptada_por.all():
+      if tarea.fecha_asignacion and tarea.tiempo_estimado:
+        fecha_vencimiento = tarea.fecha_asignacion + tarea.tiempo_estimado
+        tiempo_total = tarea.tiempo_estimado.total_seconds()
+        tiempo_restante = (fecha_vencimiento - ahora).total_seconds()
+        
+        if tiempo_restante > 0:
+            porcentaje_restante = tiempo_restante / tiempo_total
 
- # Base query para tareas completadas
+            if porcentaje_restante <= 0.25:
+                mensaje = "Último cuarto de tiempo disponible"
+            elif porcentaje_restante <= 0.33:
+                mensaje = "Último tercio del tiempo"
+            elif porcentaje_restante <= 0.5:
+                mensaje = "Mitad del tiempo consumida"
+            elif tiempo_restante <= 3600:
+                mensaje = "Vence en menos de 1 hora"
+            elif tiempo_restante == 0:
+                mensaje = "Tarea vencida"
+            
+            else:
+                mensaje = None
+
+            if mensaje:
+                tareas_proximas.append((tarea, mensaje))
+    
+    try:
+        config_tienda = TiendaConfiguracion.objects.get(tienda=perfil.tienda)
+    except TiendaConfiguracion.DoesNotExist:
+        config_tienda = TiendaConfiguracion.objects.create(tienda=perfil.tienda)
+
+
+    # Base query para tareas completadas
     tareas_completadas = Tarea.objects.filter(
         empleados=perfil, 
         completada=True
     ).prefetch_related('calificacion').order_by('-fecha_completada')
-    
+
     # Aplicar filtros de fecha
     if fecha_filtro == 'semana':
         start_date = timezone.now() - timedelta(days=7)
@@ -331,8 +369,8 @@ def dashboard_empleado(request):
             tarea.completada = True
             tarea.fecha_completada = timezone.now()
             Notificacion.objects.create(
-            usuario=tarea.jefe,
-            mensaje=f"{request.user.username} ha completado la tarea: {tarea.titulo}")
+                usuario=tarea.jefe,
+                mensaje=f"{request.user.username} ha completado la tarea: {tarea.titulo}")
             tarea.save()
 
             return redirect('dashboard_empleado')
@@ -346,7 +384,9 @@ def dashboard_empleado(request):
         'fecha_filtro': fecha_filtro,
         'form': form,
         'notificaciones': notificaciones,
-        'tareas_con_calificacion': tareas_con_calificacion
+        'tareas_con_calificacion': tareas_con_calificacion,
+        'tareas_proximas': tareas_proximas,
+        'config_tienda': config_tienda
     })
 
 @login_required
@@ -407,3 +447,19 @@ def detalle_tarea_empleado(request, tarea_id):
         'calificacion': calificacion,
         'evidencias': evidencias
     })
+    
+@login_required
+def configuracion_tienda(request):
+    perfil_jefe = get_object_or_404(EmpleadoPerfil, user=request.user, es_jefe=True)
+    tienda = perfil_jefe.tienda
+    config, created = TiendaConfiguracion.objects.get_or_create(tienda=tienda)
+    
+    if request.method == 'POST':
+        form = TiendaConfiguracionForm(request.POST, instance=config)
+        if form.is_valid():
+            form.save()
+            return redirect('configuracion_tienda')
+    else:
+        form = TiendaConfiguracionForm(instance=config)
+    
+    return render(request, 'configuracion_tienda.html', {'form': form})
