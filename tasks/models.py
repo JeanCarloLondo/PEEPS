@@ -47,6 +47,31 @@ class Tarea(models.Model):
                 return self.fecha_completada - aceptacion.fecha_aceptacion
             return timedelta(0)  # Si no hay aceptación, devuelve 0
 
+class PlantillaTarea(models.Model):
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField()
+    jefe = models.ForeignKey(User, on_delete=models.CASCADE, related_name='plantillas_creadas')
+    tiempo_estimado = models.DurationField()
+    PRIORIDADES = [
+        ('Baja', 'Baja'),
+        ('Media', 'Media'),
+        ('Alta', 'Alta'),
+    ]
+    prioridad = models.CharField(max_length=10, choices=PRIORIDADES, default='Media')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Plantilla: {self.titulo}"
+
+    def crear_tarea(self):
+        return Tarea(
+            titulo=self.titulo,
+            descripcion=self.descripcion,
+            jefe=self.jefe,
+            tiempo_estimado=self.tiempo_estimado,
+            prioridad=self.prioridad
+        )
+
 class Evidencia(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     empleado = models.ForeignKey(EmpleadoPerfil, on_delete=models.CASCADE)

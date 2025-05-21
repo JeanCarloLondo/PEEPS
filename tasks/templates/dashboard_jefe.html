@@ -1,229 +1,230 @@
+{% extends 'base.html' %}
 {% load widget_tweaks %}
 
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Jefe de Tienda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { "50": "#fdf2f8", "100": "#fce7f3", "200": "#fbcfe8", "300": "#f9a8d4", "400": "#f472b6", "500": "#ec4899", "600": "#db2777", "700": "#be185d", "800": "#9d174d", "900": "#831843", "950": "#500724" }
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-
-
-
-<body class="bg-gray-50">
-    <div class="min-h-screen flex flex-col">
-        <!-- Navbar -->
-
-        <nav class="bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-50">
-            <div class="flex flex-wrap justify-between items-center">
-                <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-8 h-8 text-primary-600 mr-3">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
-                    </svg>
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap">PEEPS</span>
-                </div>
-                <div class="flex items-center">
-                    <a href="{% url 'logout' %}"
-                        class="text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 border border-gray-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 inline-block mr-1">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-                        </svg>
-                        Cerrar sesión
-                    </a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="flex flex-1 pt-16">
-            <!-- Sidebar -->
-
-            <aside class="w-64 bg-white border-r border-gray-200 h-full fixed top-16 left-0 bottom-0 overflow-y-auto">
-                <div class="px-3 py-4">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4 px-3">Panel de Control del Jefe</h2>
-                    <ul class="space-y-2">
-                        {% if notificaciones %}
-                        <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg">
-                            <p class="font-semibold mb-2">🔔 Notificaciones recientes:</p>
-                            <a href="{% url 'marcar_notificaciones_leidas_Jefe' %}"
-                                class="text-sm text-blue-600 hover:underline font-medium">
-                                Marcar todas como leídas
-                            </a>
-                            <ul class="list-disc list-inside text-sm space-y-1">
-                                {% for notif in notificaciones %}
-                                <li>
-                                    {{ notif.mensaje }}
-                                    <span class="text-xs text-gray-500">— {{ notif.fecha|timesince }} atrás</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
-                        <li>
-                            <a href="{% url 'jefe_crear_tarea' %}"
-                                class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary-600">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>
-                                <span class="ml-3">Crear Tarea</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'revisar_tareas' %}"
-                                class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary-600" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M9 12h6m-6 4h6m-3-10v.01M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                </svg>
-                                <span class="ml-3">Revisar Tareas</span>
-                            </a>
-                        </li>
-                        <li>
-                                      <li>
-  <a href="{% url 'jefe_empleados' %}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-gray-100 group">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-        d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493
-           M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07
-           M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07
-           M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0
-           M20.25 8.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0" />
-    </svg>
-    <span class="ml-3">Empleados y Rendimiento</span>
-  </a>
-</li>
-                    </ul>
-                </div>
-            </aside>
-
-            <main class="ml-64 p-6 flex-1">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
-                    <!-- Tareas Pendientes -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                        <div class="flex items-center">
-                            <div
-                                class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-primary-600 bg-primary-100 rounded-lg mr-3">
-                                <!-- Ícono -->
-                                <svg ... class="w-6 h-6"> ... </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Tareas Pendientes</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ tareas_pendientes }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tareas Completadas -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                        <div class="flex items-center">
-                            <div
-                                class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-green-600 bg-green-100 rounded-lg mr-3">
-                                <svg ... class="w-6 h-6"> ... </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Tareas Completadas</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ tareas_completadas }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empleados -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                        <div class="flex items-center">
-                            <div
-                                class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-blue-600 bg-blue-100 rounded-lg mr-3">
-                                <svg ... class="w-6 h-6"> ... </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Empleados</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ empleado_count }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div> <!-- CIERRA este bloque de estadísticas -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                        <h3 class="text-lg font-semibold mb-4">Tareas Recientes</h3>
-                        <div class="space-y-3">
-                            {% for tarea in tareas_recientes %}
-                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div class="flex justify-between">
-                                    <span class="font-medium">{{ tarea.titulo }}</span>
-                                    <span class="text-xs text-gray-500">
-                                        {{ tarea.fecha_asignacion|timesince }} atrás
-                                    </span>
-                                </div>
-                                <p class="text-sm text-gray-500">
-                                    Asignada a:
-                                    {% for emp in tarea.empleados.all %}
-                                    {{ emp.user.get_full_name|default:emp.user.username }}{% if not forloop.last %},
-                                    {% endif %}
-                                    {% endfor %}
-                                </p>
-                            </div>
-                            {% empty %}
-                            <p class="text-sm text-gray-400">No hay tareas recientes.</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                        <h3 class="text-lg font-semibold mb-4">Accesos Rápidos</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <a href="{% url 'jefe_crear_tarea' %}"
-                                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mb-2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>
-                                <span class="text-sm font-medium">Crear Tarea</span>
-                            </a>
-                            <a href="{% url 'jefe_empleados' %}"
-                                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary-600 mb-2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                                </svg>
-                                <span class="text-sm font-medium">Empleados</span>
-                            </a>
-
-                            <a href="{% url 'logout' %}"
-                                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-600 mb-2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-                                </svg>
-                                <span class="text-sm font-medium">Cerrar sesión</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </main>
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Panel de Control</h1>
+        <div class="badge bg-light text-dark p-2">
+            <i class="fas fa-calendar-day me-1"></i>
+            {{ "now"|date:"d M Y" }}
         </div>
     </div>
-</body>
 
-</html>
+    <!-- Tarjetas de estadísticas -->
+    <div class="row g-4 mb-4">
+        <!-- Tareas Pendientes -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 bg-light rounded-circle p-3 text-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-tasks text-warning" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Tareas Pendientes</h6>
+                            <h2 class="card-title mb-0">{{ tareas_pendientes }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tareas Completadas -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 bg-light rounded-circle p-3 text-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-check-circle text-success" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Tareas Completadas</h6>
+                            <h2 class="card-title mb-0">{{ tareas_completadas }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empleados -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 bg-light rounded-circle p-3 text-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-users text-primary" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Empleados</h6>
+                            <h2 class="card-title mb-0">{{ empleado_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rendimiento -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 bg-light rounded-circle p-3 text-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-chart-line" style="color: #6f42c1; font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Rendimiento</h6>
+                            <h2 class="card-title mb-0">
+                                {% if tareas_completadas > 0 and tareas_pendientes > 0 %}
+                                    {{ tareas_completadas|floatformat:0 }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="row g-4">
+        <!-- Tareas Recientes -->
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Tareas Recientes
+                    </h5>
+                    <a href="{% url 'revisar_tareas' %}" class="btn btn-sm btn-outline-primary">
+                        Ver todas
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for tarea in tareas_recientes %}
+                        <div class="list-group-item list-group-item-action p-3">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ tarea.titulo }}</h6>
+                                <small class="text-muted">{{ tarea.fecha_asignacion|timesince }} atrás</small>
+                            </div>
+                            <p class="mb-1 text-muted small">
+                                <i class="fas fa-user-tag me-1"></i>
+                                Asignada a:
+                                {% for emp in tarea.empleados.all %}
+                                    {{ emp.user.get_full_name|default:emp.user.username }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                            <div class="mt-2">
+                                <span class="badge {% if tarea.completada %}bg-success{% else %}bg-warning{% endif %} rounded-pill">
+                                    {% if tarea.completada %}Completada{% else %}Pendiente{% endif %}
+                                </span>
+                                {% if tarea.prioridad %}
+                                <span class="badge 
+                                    {% if tarea.prioridad == 'Alta' %}bg-danger
+                                    {% elif tarea.prioridad == 'Media' %}bg-warning text-dark
+                                    {% else %}bg-info text-dark{% endif %} rounded-pill">
+                                    {{ tarea.prioridad }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard text-muted mb-3" style="font-size: 2rem;"></i>
+                            <p class="text-muted">No hay tareas recientes.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel derecho -->
+        <div class="col-lg-5">
+            <!-- Accesos Rápidos -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Accesos Rápidos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="{% url 'jefe_crear_tarea' %}" class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center">
+                                <i class="fas fa-plus-circle mb-2" style="font-size: 1.5rem;"></i>
+                                <span>Crear Tarea</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'revisar_tareas' %}" class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center">
+                                <i class="fas fa-clipboard-check mb-2" style="font-size: 1.5rem;"></i>
+                                <span>Revisar Tareas</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'jefe_empleados' %}" class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center">
+                                <i class="fas fa-users mb-2" style="font-size: 1.5rem;"></i>
+                                <span>Empleados</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'lista_plantillas' %}" class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center">
+                                <i class="fas fa-copy mb-2" style="font-size: 1.5rem;"></i>
+                                <span>Plantillas</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notificaciones -->
+            {% if notificaciones %}
+            <div class="card">
+                <div class="card-header bg-warning bg-opacity-10">
+                    <h5 class="mb-0 text-warning">
+                        <i class="fas fa-bell me-2"></i>
+                        Notificaciones
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for notif in notificaciones|slice:":3" %}
+                        <li class="list-group-item px-0">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <span class="badge rounded-circle bg-warning p-2">
+                                        <i class="fas fa-bell text-white"></i>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="mb-1">{{ notif.mensaje }}</p>
+                                    <small class="text-muted">{{ notif.fecha|timesince }} atrás</small>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if notificaciones|length > 3 %}
+                    <div class="text-center mt-3">
+                        <span class="badge bg-warning rounded-pill">+{{ notificaciones|length|add:"-3" }} más</span>
+                    </div>
+                    {% endif %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'marcar_notificaciones_leidas_Jefe' %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-check me-1"></i>
+                            Marcar todas como leídas
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

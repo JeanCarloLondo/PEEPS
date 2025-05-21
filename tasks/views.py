@@ -5,9 +5,10 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django import forms
-from .models import AceptacionTarea
+from .models import AceptacionTarea, PlantillaTarea, Tarea
 from django.utils.timezone import localtime
 from datetime import timedelta, datetime
+from django.contrib import messages
 
 # Formularios
 from .forms import (
@@ -20,7 +21,7 @@ from .forms import (
 )
 
 # Modelos
-from .models import EmpleadoPerfil, Tarea, Evidencia, Calificacion, Notificacion, TiendaConfiguracion
+from .models import EmpleadoPerfil, Evidencia, Calificacion, Notificacion, TiendaConfiguracion
 
 
 @login_required
@@ -82,6 +83,7 @@ def jefe_crear_tarea(request):
     jefe = EmpleadoPerfil.objects.get(user=request.user)
     empleados = EmpleadoPerfil.objects.filter(tienda=jefe.tienda, es_jefe=False)
     tareas = Tarea.objects.filter(jefe=request.user)
+    plantillas = PlantillaTarea.objects.filter(jefe=request.user)
 
     if request.method == 'POST':
         form = CrearTareaForm(request.POST)
@@ -91,20 +93,48 @@ def jefe_crear_tarea(request):
             tarea.jefe = request.user
             tarea.save()
             form.save_m2m()
-             # ✅ Notificar a cada empleado asignado (dentro del if)
-        for emp in form.cleaned_data['empleados']:
-            Notificacion.objects.create(
-                usuario=emp.user,
-                mensaje=f"Tu jefe de tienda te ha asignado una nueva tarea: {tarea.titulo}"
-            )
-
-        return redirect('jefe_crear_tarea')
-            
+            # Notificar a cada empleado asignado
+            for emp in form.cleaned_data['empleados']:
+                Notificacion.objects.create(
+                    usuario=emp.user,
+                    mensaje=f"Tu jefe de tienda te ha asignado una nueva tarea: {tarea.titulo}"
+                )
+            return redirect('jefe_crear_tarea')
     else:
-        form = CrearTareaForm()
+        initial_data = {}
+        # Si hay datos de plantilla en la sesión, usarlos como valores iniciales
+        if 'plantilla_tarea' in request.session:
+            initial_data = request.session.pop('plantilla_tarea')
+            # Convertir el tiempo estimado a timedelta
+            if 'tiempo_estimado' in initial_data:
+                try:
+                    # Si es un número (minutos)
+                    if isinstance(initial_data['tiempo_estimado'], (int, float)):
+                        minutos = int(initial_data['tiempo_estimado'])
+                    # Si es una cadena que representa tiempo (HH:MM:SS)
+                    elif ':' in str(initial_data['tiempo_estimado']):
+                        tiempo_partes = str(initial_data['tiempo_estimado']).split(':')
+                        horas = int(tiempo_partes[0])
+                        minutos = int(tiempo_partes[1])
+                        segundos = int(tiempo_partes[2]) if len(tiempo_partes) > 2 else 0
+                        minutos = horas * 60 + minutos + segundos // 60
+                    else:
+                        # Si es una cadena que representa minutos
+                        minutos = int(initial_data['tiempo_estimado'])
+                    
+                    initial_data['tiempo_estimado'] = timedelta(minutes=minutos)
+                except (ValueError, IndexError):
+                    messages.error(request, "Error al procesar el tiempo estimado de la plantilla.")
+                    initial_data['tiempo_estimado'] = timedelta(minutes=0)
+        
+        form = CrearTareaForm(initial=initial_data)
         form.fields['empleados'].queryset = empleados
 
-    return render(request, 'jefe_crear_tarea.html', {'form': form, 'tareas': tareas})
+    return render(request, 'jefe_crear_tarea.html', {
+        'form': form,
+        'tareas': tareas,
+        'plantillas': plantillas
+    })
 
 @login_required
 def clean_empleados(self):
@@ -463,3 +493,111 @@ def configuracion_tienda(request):
         form = TiendaConfiguracionForm(instance=config)
     
     return render(request, 'configuracion_tienda.html', {'form': form})
+
+@login_required
+def lista_plantillas(request):
+    if not request.user.empleadoperfil.es_jefe:
+        messages.error(request, "No tienes permiso para ver esta página.")
+        return redirect('index')
+    
+    plantillas = PlantillaTarea.objects.filter(jefe=request.user)
+    return render(request, 'tasks/plantillas/lista_plantillas.html', {'plantillas': plantillas})
+
+@login_required
+def crear_plantilla(request):
+    if not request.user.empleadoperfil.es_jefe:
+        messages.error(request, "No tienes permiso para realizar esta acción.")
+        return redirect('index')
+    
+    if request.method == 'POST':
+        # Procesar el formulario
+        titulo = request.POST.get('titulo')
+        descripcion = request.POST.get('descripcion')
+        tiempo_estimado_minutos = request.POST.get('tiempo_estimado')
+        prioridad = request.POST.get('prioridad')
+        
+        try:
+            # Convertir minutos a timedelta
+            tiempo_estimado = timedelta(minutes=int(tiempo_estimado_minutos))
+            
+            PlantillaTarea.objects.create(
+                titulo=titulo,
+                descripcion=descripcion,
+                jefe=request.user,
+                tiempo_estimado=tiempo_estimado,
+                prioridad=prioridad
+            )
+            messages.success(request, "Plantilla creada exitosamente.")
+            return redirect('lista_plantillas')
+        except ValueError:
+            messages.error(request, "El tiempo estimado debe ser un número válido de minutos.")
+    
+    return render(request, 'tasks/plantillas/crear_plantilla.html')
+
+@login_required
+def editar_plantilla(request, plantilla_id):
+    if not request.user.empleadoperfil.es_jefe:
+        messages.error(request, "No tienes permiso para realizar esta acción.")
+        return redirect('index')
+    
+    plantilla = get_object_or_404(PlantillaTarea, id=plantilla_id, jefe=request.user)
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo')
+        descripcion = request.POST.get('descripcion')
+        tiempo_estimado_minutos = request.POST.get('tiempo_estimado')
+        prioridad = request.POST.get('prioridad')
+        
+        try:
+            # Convertir minutos a timedelta
+            tiempo_estimado = timedelta(minutes=int(tiempo_estimado_minutos))
+            
+            plantilla.titulo = titulo
+            plantilla.descripcion = descripcion
+            plantilla.tiempo_estimado = tiempo_estimado
+            plantilla.prioridad = prioridad
+            plantilla.save()
+            
+            messages.success(request, "Plantilla actualizada exitosamente.")
+            return redirect('lista_plantillas')
+        except ValueError:
+            messages.error(request, "El tiempo estimado debe ser un número válido de minutos.")
+    
+    return render(request, 'tasks/plantillas/editar_plantilla.html', {'plantilla': plantilla})
+
+@login_required
+def eliminar_plantilla(request, plantilla_id):
+    if not request.user.empleadoperfil.es_jefe:
+        messages.error(request, "No tienes permiso para realizar esta acción.")
+        return redirect('index')
+    
+    plantilla = get_object_or_404(PlantillaTarea, id=plantilla_id, jefe=request.user)
+    
+    if request.method == 'POST':
+        plantilla.delete()
+        messages.success(request, "Plantilla eliminada exitosamente.")
+        return redirect('lista_plantillas')
+    
+    return render(request, 'tasks/plantillas/confirmar_eliminar_plantilla.html', {'plantilla': plantilla})
+
+@login_required
+def usar_plantilla(request, plantilla_id):
+    if not request.user.empleadoperfil.es_jefe:
+        messages.error(request, "No tienes permiso para realizar esta acción.")
+        return redirect('index')
+    
+    plantilla = get_object_or_404(PlantillaTarea, id=plantilla_id, jefe=request.user)
+    nueva_tarea = plantilla.crear_tarea()
+    
+    # Convertir el tiempo_estimado a minutos antes de guardarlo en la sesión
+    minutos_totales = int(plantilla.tiempo_estimado.total_seconds() / 60)
+    
+    # Guardar en sesión para usar en la vista de creación de tarea
+    request.session['plantilla_tarea'] = {
+        'titulo': nueva_tarea.titulo,
+        'descripcion': nueva_tarea.descripcion,
+        'tiempo_estimado': minutos_totales,  # Guardamos directamente el número, no como string
+        'prioridad': nueva_tarea.prioridad
+    }
+    
+    return redirect('jefe_crear_tarea')

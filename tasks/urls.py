@@ -35,9 +35,14 @@ urlpatterns += [
     path('jefe/crear-tarea/', views.jefe_crear_tarea, name='jefe_crear_tarea'),  # Crear tarea
     path('jefe/empleados/', views.jefe_empleados, name='jefe_empleados'),  # Ver empleados
     path('notificaciones/leidasJefe/', views.marcar_notificaciones_leidas_Jefe, name='marcar_notificaciones_leidas_Jefe'),
-    path('jefe/revisar-tareas/', views.revisar_tareas, name='revisar_tareas')
+    path('jefe/revisar-tareas/', views.revisar_tareas, name='revisar_tareas'),
     
-
+    # Nuevas rutas para plantillas
+    path('jefe/plantillas/', views.lista_plantillas, name='lista_plantillas'),
+    path('jefe/plantillas/crear/', views.crear_plantilla, name='crear_plantilla'),
+    path('jefe/plantillas/<int:plantilla_id>/editar/', views.editar_plantilla, name='editar_plantilla'),
+    path('jefe/plantillas/<int:plantilla_id>/eliminar/', views.eliminar_plantilla, name='eliminar_plantilla'),
+    path('jefe/plantillas/<int:plantilla_id>/usar/', views.usar_plantilla, name='usar_plantilla'),
 ]
 
 # Gestión de tareas por el jefe

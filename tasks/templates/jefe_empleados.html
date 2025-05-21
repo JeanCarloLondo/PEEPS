@@ -1,284 +1,96 @@
+{% extends 'base.html' %}
 {% load widget_tweaks %}
 {% load humanize %}
 
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Empleados y Rendimiento - PEEPS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { "50": "#fdf2f8", "100": "#fce7f3", "200": "#fbcfe8", "300": "#f9a8d4", "400": "#f472b6", "500": "#ec4899", "600": "#db2777", "700": "#be185d", "800": "#9d174d", "900": "#831843", "950": "#500724" }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .details-table td,
-        .details-table th {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-        }
-        
-        /* Animaciones y transiciones */
-        .hover-scale {
-            transition: transform 0.2s ease-in-out;
-        }
-        
-        .hover-scale:hover {
-            transform: scale(1.02);
-        }
-        
-        /* Scrollbar personalizado */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #ec4899;
-            border-radius: 10px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #be185d;
-        }
-        
-        /* Efecto de tarjeta elevada */
-        .card-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
-        }
-        
-        .card-shadow:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transform: translateY(-2px);
-        }
-        
-        /* Menú móvil */
-        @media (max-width: 768px) {
-            .mobile-menu-open {
-                transform: translateX(0);
-            }
-            
-            .mobile-menu-closed {
-                transform: translateX(-100%);
-            }
-        }
-    </style>
-</head>
-
-<body class="bg-gray-50">
-    <div class="min-h-screen flex flex-col">
-        <!-- Barra de navegación mejorada -->
-        <nav class="bg-white border-b border-gray-200 px-4 py-3 fixed left-0 right-0 top-0 z-50 shadow-sm">
-            <div class="flex flex-wrap justify-between items-center max-w-7xl mx-auto">
-                <div class="flex items-center">
-                    <button id="mobile-menu-button" class="md:hidden mr-2 text-gray-600 hover:text-primary-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                        </svg>
-                    </button>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-8 h-8 text-primary-600 mr-3">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
-                    </svg>
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap bg-gradient-to-r from-primary-600 to-primary-800 text-transparent bg-clip-text">PEEPS</span>
-                </div>
-                <div class="flex items-center space-x-3">
-                    {% if notificaciones %}
-                    <div class="relative mr-2">
-                        <a href="#" class="text-gray-600 hover:text-primary-600 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                            </svg>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                {{ notificaciones|length }}
-                            </span>
-                        </a>
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-users text-primary fs-3 me-3"></i>
+                        <div>
+                            <h1 class="h3 mb-1">Empleados y Rendimiento</h1>
+                            <p class="text-muted mb-0">Gestiona, supervisa a tus empleados y analiza su rendimiento en tiempo real.</p>
+                        </div>
                     </div>
-                    {% endif %}
-                    <a href="{% url 'logout' %}"
-                        class="text-gray-800 hover:text-white hover:bg-primary-600 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 border border-gray-300 hover:border-primary-600 transition-all duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 inline-block mr-1">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-                        </svg>
-                        Cerrar sesión
-                    </a>
                 </div>
             </div>
-        </nav>
+        </div>
+    </div>
 
-        <div class="flex flex-1 pt-16">
-            <!-- Menú lateral mejorado con soporte móvil -->
-            <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 h-full fixed top-16 left-0 bottom-0 overflow-y-auto transition-transform duration-300 ease-in-out z-40 mobile-menu-closed md:transform-none custom-scrollbar">
-                <div class="px-3 py-4">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4 px-3 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 mr-2 text-primary-600">
-                            
-                        </svg>
-                  
-                    </h2>
-                    {% if notificaciones %}
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-lg mx-3 card-shadow">
-                        <div class="flex justify-between items-center mb-2">
-                            <p class="font-semibold flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor" class="w-4 h-4 mr-1">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                                </svg>
-                                Notificaciones:
-                            </p>
-                            <a href="{% url 'marcar_notificaciones_leidas_Jefe' %}"
-                                class="text-xs text-primary-600 hover:text-primary-800 hover:underline font-medium transition-colors">
-                                Marcar leídas
-                            </a>
+    <!-- Tarjetas de estadísticas -->
+    <div class="row g-4 mb-4">
+        <!-- Total Empleados -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 bg-light rounded-circle p-3 text-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-users text-primary" style="font-size: 1.5rem;"></i>
                         </div>
-                        <ul class="list-disc list-inside text-sm space-y-1 max-h-32 overflow-y-auto custom-scrollbar">
-                            {% for notif in notificaciones %}
-                            <li class="py-1 border-b border-yellow-100 last:border-0">
-                                {{ notif.mensaje }}
-                                <span class="text-xs text-gray-500 ml-1">— {{ notif.fecha|naturaltime }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-                    <ul class="space-y-1">
-                        <li><a href="{% url 'dashboard_jefe' %}"
-                                class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary-600">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                                </svg><span class="ml-3 font-medium">Panel Principal</span></a></li>
-                        <li><a href="{% url 'revisar_tareas' %}"
-                                class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary-600" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M9 12h6m-6 4h6m-3-10v.01M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                </svg><span class="ml-3 font-medium">Revisar Tareas</span></a></li>
-                        <li><a href="{% url 'jefe_crear_tarea' %}"
-                                class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary-600">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg><span class="ml-3 font-medium">Crear Tarea</span></a></li>
-                        <li><a href="{% url 'jefe_empleados' %}"
-                                class="flex items-center p-3 text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg group shadow-md">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
-                                </svg><span class="ml-3 font-medium">Empleados y Rendimiento</span></a></li>
-                    </ul>
-                </div>
-            </aside>
-
-            <!-- Contenido principal mejorado -->
-            <main class="ml-0 md:ml-64 p-4 md:p-6 flex-1">
-                <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-7 h-7 mr-2 text-primary-600">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                        </svg>
-                        Empleados y Rendimiento
-                    </h2>
-                    <p class="text-gray-600">Gestiona, supervisa a tus empleados y analiza su rendimiento en tiempo real.</p>
-                </div>
-
-                <!-- Tarjetas de estadísticas mejoradas -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover-scale card-shadow">
-                        <div class="flex items-center">
-                            <div
-                                class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-blue-600 bg-blue-100 rounded-full mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                                </svg></div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Empleados</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ empleados_count_for_card }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover-scale card-shadow">
-                        <div class="flex items-center">
-                            <div
-                                class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-green-600 bg-green-100 rounded-full mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg></div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Activos (con tareas pendientes)</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ empleados_activos_for_card }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover-scale card-shadow">
-                        <div class="flex items-center">
-                            <div
-                                class="inline-flex flex-shrink-0 justify-center items-center w-12 h-12 text-yellow-600 bg-yellow-100 rounded-full mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg></div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Tareas Pendientes</p>
-                                <p class="text-2xl font-bold text-gray-900">{{ tareas_pendientes_total_for_card }}</p>
-                            </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Total Empleados</h6>
+                            <h2 class="card-title mb-0">{{ empleados_count_for_card }}</h2>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Filtros mejorados -->
-                <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5 mr-2 text-primary-600">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-                        </svg>
+        <!-- Empleados Activos -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 bg-light rounded-circle p-3 text-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-user-check text-success" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Activos (con tareas pendientes)</h6>
+                            <h2 class="card-title mb-0">{{ empleados_activos_for_card }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tareas Pendientes -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3 bg-light rounded-circle p-3 text-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-tasks text-warning" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Total Tareas Pendientes</h6>
+                            <h2 class="card-title mb-0">{{ tareas_pendientes_total_for_card }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
                         Filtrar Informe de Rendimiento
-                    </h3>
+                    </h5>
+                </div>
+                <div class="card-body">
                     <form method="GET" action="{% url 'jefe_empleados' %}">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label for="empleado_id_filter"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Empleado:</label>
-                                <select name="empleado_id" id="empleado_id_filter"
-                                    class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="empleado_id_filter" class="form-label">Empleado:</label>
+                                <select name="empleado_id" id="empleado_id_filter" class="form-select">
                                     <option value="">Todos los empleados</option>
                                     {% for emp_filter in all_employees_for_filter %}
                                     <option value="{{ emp_filter.id }}" {% if emp_filter.id == selected_employee_id %}selected{% endif %}>
@@ -287,301 +99,274 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div>
-                                <label for="fecha_inicio_filter" class="block text-sm font-medium text-gray-700 mb-1">Fecha
-                                    Inicio (Completada):</label>
-                                <input type="date" name="fecha_inicio" id="fecha_inicio_filter"
-                                    value="{{ fecha_inicio_str|default:'' }}"
-                                    class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors">
+                            <div class="col-md-4">
+                                <label for="fecha_inicio_filter" class="form-label">Fecha Inicio (Completada):</label>
+                                <input type="date" name="fecha_inicio" id="fecha_inicio_filter" 
+                                       value="{{ fecha_inicio_str|default:'' }}" class="form-control">
                             </div>
-                            <div>
-                                <label for="fecha_fin_filter" class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin
-                                    (Completada):</label>
-                                <input type="date" name="fecha_fin" id="fecha_fin_filter"
-                                    value="{{ fecha_fin_str|default:'' }}"
-                                    class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors">
+                            <div class="col-md-4">
+                                <label for="fecha_fin_filter" class="form-label">Fecha Fin (Completada):</label>
+                                <input type="date" name="fecha_fin" id="fecha_fin_filter" 
+                                       value="{{ fecha_fin_str|default:'' }}" class="form-control">
                             </div>
                         </div>
-                        <div class="mt-4 flex flex-wrap items-center gap-2">
-                            <button type="submit"
-                                class="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-md hover:from-primary-700 hover:to-primary-800 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor" class="w-4 h-4 mr-1">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-                                </svg>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-1"></i>
                                 Aplicar Filtros
                             </button>
-                            <a href="{% url 'jefe_empleados' %}"
-                                class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-gray-200 transition-all duration-200 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor" class="w-4 h-4 mr-1">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                </svg>
+                            <a href="{% url 'jefe_empleados' %}" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-times me-1"></i>
                                 Limpiar Filtros
                             </a>
                         </div>
                     </form>
+                    
                     {% if selected_employee_id or fecha_inicio_str or fecha_fin_str %}
-                    <div class="mt-3 p-2 bg-blue-50 border-l-4 border-blue-400 text-blue-800 rounded-md">
-                        <p class="text-sm flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-4 h-4 mr-1">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                            </svg>
-                            Mostrando resultados filtrados para el rendimiento. Las tareas pendientes siempre se muestran completas.
-                        </p>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Mostrando resultados filtrados para el rendimiento. Las tareas pendientes siempre se muestran completas.
                     </div>
                     {% endif %}
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Tabla de empleados mejorada -->
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
-                    <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-white">
-                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-5 h-5 mr-2 text-primary-600">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                            </svg>
-                            {% if selected_employee_id %}
-                            Detalles del Empleado
-                            {% else %}
-                            Lista de Empleados (ordenados por Score de Rendimiento Desc.)
-                            {% endif %}
-                        </h3>
-                    </div>
-                    <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+    <!-- Tabla de empleados -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        {% if selected_employee_id %}
+                        Detalles del Empleado
+                        {% else %}
+                        Lista de Empleados (ordenados por Score de Rendimiento Desc.)
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped align-middle mb-0">
+                            <thead class="table-light">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 bg-gray-100">#</th>
-                                    <th scope="col" class="px-6 py-3">Nombre</th>
-                                    <th scope="col" class="px-6 py-3 bg-gray-100">Email</th>
-                                    <th scope="col" class="px-6 py-3">TAREAS ASIGNADAS</th>
-                                    <th scope="col" class="px-6 py-3 bg-gray-100">Tareas Pendientes</th>
-                                    <th scope="col" class="px-6 py-3">Score Rendimiento</th>
-                                    <th scope="col" class="px-6 py-3 bg-gray-100">Tareas Completadas</th>
-                                    <th scope="col" class="px-6 py-3">Prom. Rating</th>
+                                    <th scope="col" class="bg-light">#</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col" class="bg-light">Email</th>
+                                    <th scope="col">TAREAS ASIGNADAS</th>
+                                    <th scope="col" class="bg-light">Tareas Pendientes</th>
+                                    <th scope="col">Score Rendimiento</th>
+                                    <th scope="col" class="bg-light">Tareas Completadas</th>
+                                    <th scope="col">Prom. Rating</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for data_item in data_list %}
-                                <tr class="bg-white border-b hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 bg-gray-50 font-medium">{{ forloop.counter }}</td>
-                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold mr-2">
-                                                {{ data_item.empleado.user.username|slice:":1"|upper }}
+                                <tr>
+                                    <td class="bg-light fw-bold">{{ forloop.counter }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle me-2" style="width: 40px; height: 40px;">
+                                                <span class="fw-bold">{{ data_item.empleado.user.username|slice:":1"|upper }}</span>
                                             </div>
-                                            {{data_item.empleado.user.username }}
+                                            <div class="fw-medium">{{ data_item.empleado.user.username }}</div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 bg-gray-50">
-                                        <a href="mailto:{{ data_item.empleado.user.email }}" class="text-primary-600 hover:underline">
+                                    <td class="bg-light">
+                                        <a href="mailto:{{ data_item.empleado.user.email }}" class="text-primary">
                                             {{ data_item.empleado.user.email }}
                                         </a>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <td>
+                                        <span class="badge bg-primary rounded-pill">
                                             {{ data_item.num_tareas_asignadas_historico }} (Total)
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 bg-gray-50">
-                                        <div class="flex items-center">
-                                            <div
-                                                class="h-2.5 w-2.5 rounded-full {% if data_item.tiene_tarea_pendiente %}bg-yellow-500{% else %}bg-green-500{% endif %} mr-2">
-                                            </div>
+                                    <td class="bg-light">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2 rounded-circle {% if data_item.tiene_tarea_pendiente %}bg-warning{% else %}bg-success{% endif %}" style="width: 10px; height: 10px;"></div>
                                             {% if data_item.tiene_tarea_pendiente %}
-                                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                            <span class="badge bg-warning text-dark rounded-pill">
                                                 {{ data_item.cantidad_tareas_pendientes }} pendiente(s)
                                             </span>
                                             {% else %}
-                                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                            <span class="badge bg-success rounded-pill">
                                                 Sin tareas pendientes
                                             </span>
                                             {% endif %}
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 font-semibold">
-                                        <div class="flex items-center">
-                                            <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                                                <div class="bg-primary-600 h-2.5 rounded-full" style="width: {{data_item.performance_score}}%;"></div>
+                                    <td class="fw-medium">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                <div class="progress-bar" role="progressbar" style="width: {{ data_item.performance_score }}%;" 
+                                                     aria-valuenow="{{ data_item.performance_score }}" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                             <span>{{ data_item.performance_score }} pts</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 bg-gray-50">
-                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                            {{ data_item.num_tareas_completadas_periodo }} de {{data_item.num_tareas_asignadas_historico }}
+                                    <td class="bg-light">
+                                        <span class="badge bg-success rounded-pill">
+                                            {{ data_item.num_tareas_completadas_periodo }} de {{ data_item.num_tareas_asignadas_historico }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center">
-                                            <div class="flex text-yellow-400 mr-1">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="text-warning me-1">
                                                 {% with ''|center:data_item.avg_rating_periodo|floatformat:0 as stars %}
                                                 {% for _ in stars %}
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                                                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
-                                                </svg>
+                                                <i class="fas fa-star"></i>
                                                 {% endfor %}
                                                 {% endwith %}
                                                 
                                                 {% with ''|center:5|slice:data_item.avg_rating_periodo|floatformat:0 as empty_stars %}
                                                 {% for _ in empty_stars %}
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-gray-300">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                                                </svg>
+                                                <i class="far fa-star text-muted"></i>
                                                 {% endfor %}
                                                 {% endwith %}
                                             </div>
-                                            {{ data_item.avg_rating_periodo|floatformat:1 }}/5.0
-                                            <span class="text-xs text-gray-500 ml-1">({{data_item.num_tareas_calificadas_periodo }})</span>
+                                            <span>{{ data_item.avg_rating_periodo|floatformat:1 }}/5.0</span>
+                                            <small class="text-muted ms-1">({{ data_item.num_tareas_calificadas_periodo }})</small>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr class="bg-gray-50 border-b">
-                                    <td colspan="8" class="px-6 py-4">
-                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                            <!-- Tareas pendientes -->
-                                            <div class="bg-white border border-yellow-200 rounded-lg p-4 shadow-sm hover-scale">
-                                                <h4 class="text-sm font-semibold text-yellow-700 flex items-center mb-3">
-                                                    <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                    </svg>Tareas Pendientes ({{data_item.cantidad_tareas_pendientes}})
-                                                </h4>
-                                                {% if data_item.tareas_pendientes_list %}
-                                                <ul
-                                                    class="space-y-2 text-sm text-gray-700 list-disc list-inside max-h-48 overflow-y-auto custom-scrollbar">
-                                                    {% for tarea in data_item.tareas_pendientes_list %}
-                                                    <li class="p-2 hover:bg-yellow-50 rounded-md transition-colors">
-                                                        <span class="font-medium text-gray-900">{{ tarea.titulo}}</span> 
-                                                        <div class="flex items-center mt-1">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                                stroke="currentColor" class="w-3 h-3 text-gray-500 mr-1">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                            </svg>
-                                                            <span class="text-xs text-gray-500">{{ tarea.fecha_asignacion|naturaltime }}</span>
-                                                            
-                                                            {% if tarea.prioridad == 'Alta' %}
-                                                            <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                Alta
-                                                            </span>
-                                                            {% elif tarea.prioridad == 'Media' %}
-                                                            <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                Media
-                                                            </span>
-                                                            {% else %}
-                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                Baja
-                                                            </span>
-                                                            {% endif %}
-                                                        </div>
-                                                    </li>
-                                                    {% endfor %}
-                                                </ul>
-                                                {% else %}
-                                                <div class="flex flex-col items-center justify-center py-6 text-gray-400 italic">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                        stroke="currentColor" class="w-10 h-10 mb-2 text-gray-300">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                    </svg>
-                                                    <p>No tiene tareas pendientes</p>
-                                                </div>
-                                                {% endif %}
-                                            </div>
-                                            
-                                            <!-- Tareas completadas -->
-                                            <div class="bg-white border border-green-200 rounded-lg p-4 shadow-sm hover-scale">
-                                                <h4 class="text-sm font-semibold text-green-700 flex items-center mb-3">
-                                                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>Tareas Completadas en Periodo ({{ data_item.num_tareas_completadas_periodo }})
-                                                </h4>
-                                                {% if data_item.detailed_completed_tasks_list %}
-                                                <div class="max-h-96 overflow-y-auto custom-scrollbar">
-                                                    <table class="min-w-full w-full text-xs details-table">
-                                                        <thead class="bg-gray-100 sticky top-0">
-                                                            <tr>
-                                                                <th class="rounded-tl-md">Tarea</th>
-                                                                <th>Estimado</th>
-                                                                <th>Real</th>
-                                                                <th class="rounded-tr-md">Score</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for task_detail in data_item.detailed_completed_tasks_list %}
-                                                            <tr class="border-b hover:bg-green-50 transition-colors">
-                                                                <td class="font-medium text-gray-900 py-2">
-                                                                  {% if task_detail.id %}
-                                                                  <a href="{% url 'detalle_tarea' task_detail.id %}" class="text-primary-600 hover:text-primary-800 hover:underline flex items-center">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                                        stroke="currentColor" class="w-3 h-3 mr-1">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                                                    </svg>
-                                                                    {{ task_detail.titulo }}
-                                                                  </a>
-                                                                  {% else %}
-                                                                   <span class="text-gray-400 italic">Sin ID</span>
-                                                                   {% endif %}
-                                                                    <div class="flex items-center mt-1">
-                                                                        <span class="text-gray-500 text-xs mr-1">Calificación:</span>
-                                                                        {% if task_detail.calificacion %}
-                                                                        <div class="flex text-yellow-400">
-                                                                            {% with ''|center:task_detail.calificacion.puntaje as stars %}
-                                                                            {% for _ in stars %}
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3">
-                                                                                <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
-                                                                            </svg>
+                                <tr>
+                                    <td colspan="8" class="p-0 border-0">
+                                        <div class="accordion" id="employeeDetails{{ forloop.counter }}">
+                                            <div class="accordion-item border-0">
+                                                <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                                    <button class="accordion-button collapsed bg-light py-2" type="button" 
+                                                            data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" 
+                                                            aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                                                        <small>Ver detalles de tareas</small>
+                                                    </button>
+                                                </h2>
+                                                <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" 
+                                                     aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#employeeDetails{{ forloop.counter }}">
+                                                    <div class="accordion-body p-0">
+                                                        <div class="row g-3 p-3">
+                                                            <!-- Tareas pendientes -->
+                                                            <div class="col-lg-6">
+                                                                <div class="card border-warning h-100">
+                                                                    <div class="card-header bg-warning bg-opacity-10 text-warning">
+                                                                        <h6 class="mb-0">
+                                                                            <i class="fas fa-clock me-2"></i>
+                                                                            Tareas Pendientes ({{ data_item.cantidad_tareas_pendientes }})
+                                                                        </h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        {% if data_item.tareas_pendientes_list %}
+                                                                        <ul class="list-group list-group-flush">
+                                                                            {% for tarea in data_item.tareas_pendientes_list %}
+                                                                            <li class="list-group-item">
+                                                                                <div class="fw-medium">{{ tarea.titulo }}</div>
+                                                                                <div class="d-flex align-items-center mt-1">
+                                                                                    <i class="far fa-clock text-muted me-1"></i>
+                                                                                    <small class="text-muted">{{ tarea.fecha_asignacion|naturaltime }}</small>
+                                                                                    
+                                                                                    {% if tarea.prioridad == 'Alta' %}
+                                                                                    <span class="badge bg-danger ms-2">Alta</span>
+                                                                                    {% elif tarea.prioridad == 'Media' %}
+                                                                                    <span class="badge bg-warning text-dark ms-2">Media</span>
+                                                                                    {% else %}
+                                                                                    <span class="badge bg-info text-dark ms-2">Baja</span>
+                                                                                    {% endif %}
+                                                                                </div>
+                                                                            </li>
                                                                             {% endfor %}
-                                                                            {% endwith %}
-                                                                        </div>
+                                                                        </ul>
                                                                         {% else %}
-                                                                        <span class="text-gray-400 italic">N/A</span>
+                                                                        <div class="text-center py-4 text-muted">
+                                                                            <i class="fas fa-check-circle fs-3 mb-2"></i>
+                                                                            <p>No tiene tareas pendientes</p>
+                                                                        </div>
                                                                         {% endif %}
                                                                     </div>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                        {{ task_detail.tiempo_estimado }}
-                                                                    </span>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                        {{ task_detail.tiempo_real_ejecucion}}
-                                                                    </span>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                                                        {{ task_detail.task_score }} pts
-                                                                    </span>
-                                                                </td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <!-- Tareas completadas -->
+                                                            <div class="col-lg-6">
+                                                                <div class="card border-success h-100">
+                                                                    <div class="card-header bg-success bg-opacity-10 text-success">
+                                                                        <h6 class="mb-0">
+                                                                            <i class="fas fa-check-circle me-2"></i>
+                                                                            Tareas Completadas en Periodo ({{ data_item.num_tareas_completadas_periodo }})
+                                                                        </h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        {% if data_item.detailed_completed_tasks_list %}
+                                                                        <div class="table-responsive">
+                                                                            <table class="table table-sm table-hover">
+                                                                                <thead class="table-light">
+                                                                                    <tr>
+                                                                                        <th>Tarea</th>
+                                                                                        <th>Estimado</th>
+                                                                                        <th>Real</th>
+                                                                                        <th>Score</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    {% for task_detail in data_item.detailed_completed_tasks_list %}
+                                                                                    <tr>
+                                                                                        <td class="fw-medium">
+                                                                                            {% if task_detail.id %}
+                                                                                            <a href="{% url 'detalle_tarea' task_detail.id %}" class="text-primary">
+                                                                                                <i class="fas fa-eye me-1"></i>
+                                                                                                {{ task_detail.titulo }}
+                                                                                            </a>
+                                                                                            {% else %}
+                                                                                            <span class="text-muted fst-italic">Sin ID</span>
+                                                                                            {% endif %}
+                                                                                            <div class="mt-1">
+                                                                                                <small class="text-muted me-1">Calificación:</small>
+                                                                                                {% if task_detail.calificacion %}
+                                                                                                <span class="text-warning">
+                                                                                                    {% with ''|center:task_detail.calificacion.puntaje as stars %}
+                                                                                                    {% for _ in stars %}
+                                                                                                    <i class="fas fa-star"></i>
+                                                                                                    {% endfor %}
+                                                                                                    {% endwith %}
+                                                                                                </span>
+                                                                                                {% else %}
+                                                                                                <span class="text-muted fst-italic">N/A</span>
+                                                                                                {% endif %}
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <span class="badge bg-primary">
+                                                                                                {{ task_detail.tiempo_estimado }}
+                                                                                            </span>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <span class="badge bg-secondary">
+                                                                                                {{ task_detail.tiempo_real_ejecucion }}
+                                                                                            </span>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <span class="badge bg-primary">
+                                                                                                {{ task_detail.task_score }} pts
+                                                                                            </span>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    {% endfor %}
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                        {% else %}
+                                                                        <div class="text-center py-4 text-muted">
+                                                                            <i class="far fa-calendar-times fs-3 mb-2"></i>
+                                                                            <p>No hay tareas completadas en el periodo seleccionado</p>
+                                                                        </div>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                {% else %}
-                                                <div class="flex flex-col items-center justify-center py-6 text-gray-400 italic">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                        stroke="currentColor" class="w-10 h-10 mb-2 text-gray-300">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                                                    </svg>
-                                                    <p>No hay tareas completadas en el periodo seleccionado</p>
-                                                </div>
-                                                {% endif %}
                                             </div>
                                         </div>
                                     </td>
@@ -591,33 +376,8 @@
                         </table>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
-
-    <!-- Script para el menú móvil -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const sidebar = document.getElementById('sidebar');
-            
-            mobileMenuButton.addEventListener('click', function() {
-                sidebar.classList.toggle('mobile-menu-closed');
-                sidebar.classList.toggle('mobile-menu-open');
-            });
-            
-            // Cerrar menú al hacer clic en un enlace (en móvil)
-            const sidebarLinks = sidebar.querySelectorAll('a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth < 768) {
-                        sidebar.classList.add('mobile-menu-closed');
-                        sidebar.classList.remove('mobile-menu-open');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-
-</html>
+</div>
+{% endblock %}

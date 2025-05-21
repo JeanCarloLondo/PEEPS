@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Editar Plantilla de Tarea</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="titulo">Título</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo" value="{{ plantilla.titulo }}" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="descripcion">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required>{{ plantilla.descripcion }}</textarea>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="tiempo_estimado">Tiempo Estimado (en minutos)</label>
+                            <input type="number" class="form-control" id="tiempo_estimado" name="tiempo_estimado" value="{{ plantilla.tiempo_estimado.total_seconds|divisibleby:60 }}" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="prioridad">Prioridad</label>
+                            <select class="form-control" id="prioridad" name="prioridad" required>
+                                <option value="Baja" {% if plantilla.prioridad == 'Baja' %}selected{% endif %}>Baja</option>
+                                <option value="Media" {% if plantilla.prioridad == 'Media' %}selected{% endif %}>Media</option>
+                                <option value="Alta" {% if plantilla.prioridad == 'Alta' %}selected{% endif %}>Alta</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'lista_plantillas' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

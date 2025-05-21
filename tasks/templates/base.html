@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEEPS - Sistema de Gestión de Tareas</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Estilos personalizados */
+        .navbar-brand {
+            font-weight: bold;
+            color: #6f42c1 !important;
+        }
+        
+        .nav-link {
+            color: #495057;
+        }
+        
+        .nav-link:hover {
+            color: #6f42c1;
+        }
+        
+        .nav-link.active {
+            color: #6f42c1 !important;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5a32a3;
+            border-color: #5a32a3;
+        }
+        
+        .btn-outline-primary {
+            color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        
+        .badge {
+            padding: 0.5em 0.75em;
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
+                <i class="fas fa-tasks me-2"></i>
+                PEEPS
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if user.is_authenticated %}
+                    {% if user.empleadoperfil.es_jefe %}
+                        <!-- Menú para Jefes -->
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_jefe' %}active{% endif %}" 
+                                   href="{% url 'dashboard_jefe' %}">
+                                    <i class="fas fa-home me-1"></i> Panel Principal
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'jefe_crear_tarea' %}active{% endif %}" 
+                                   href="{% url 'jefe_crear_tarea' %}">
+                                    <i class="fas fa-plus me-1"></i> Crear Tarea
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'revisar_tareas' %}active{% endif %}" 
+                                   href="{% url 'revisar_tareas' %}">
+                                    <i class="fas fa-clipboard-check me-1"></i> Revisar Tareas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'jefe_empleados' %}active{% endif %}" 
+                                   href="{% url 'jefe_empleados' %}">
+                                    <i class="fas fa-users me-1"></i> Empleados
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'lista_plantillas' %}active{% endif %}" 
+                                   href="{% url 'lista_plantillas' %}">
+                                    <i class="fas fa-copy me-1"></i> Plantillas
+                                </a>
+                            </li>
+                        </ul>
+                    {% else %}
+                        <!-- Menú para Empleados -->
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_empleado' %}active{% endif %}" 
+                                   href="{% url 'dashboard_empleado' %}">
+                                    <i class="fas fa-home me-1"></i> Mis Tareas
+                                </a>
+                            </li>
+                        </ul>
+                    {% endif %}
+                    
+                    <!-- Menú de usuario -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell me-1"></i>
+                                {% if notificaciones %}
+                                    <span class="badge bg-danger notification-badge">{{ notificaciones|length }}</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                {% if notificaciones %}
+                                    {% for notificacion in notificaciones %}
+                                        <li><a class="dropdown-item" href="#">{{ notificacion.mensaje }}</a></li>
+                                    {% endfor %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        {% if user.empleadoperfil.es_jefe %}
+                                            <a class="dropdown-item" href="{% url 'marcar_notificaciones_leidas_Jefe' %}">
+                                                Marcar todas como leídas
+                                            </a>
+                                        {% else %}
+                                            <a class="dropdown-item" href="{% url 'marcar_notificaciones_leidas' %}">
+                                                Marcar todas como leídas
+                                            </a>
+                                        {% endif %}
+                                    </li>
+                                {% else %}
+                                    <li><a class="dropdown-item" href="#">No hay notificaciones nuevas</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-1"></i>
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'logout' %}">
+                                        <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'registro_empleado' %}">
+                                <i class="fas fa-user-plus me-1"></i> Registrarse
+                            </a>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light border-top mt-5 py-3">
+        <div class="container text-center">
+            <p class="text-muted mb-0">© {% now "Y" %} PEEPS - Sistema de Gestión de Tareas</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

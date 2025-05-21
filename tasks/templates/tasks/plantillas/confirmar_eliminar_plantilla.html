@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h2>Confirmar Eliminación</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">¿Estás seguro de que deseas eliminar la siguiente plantilla?</p>
+                    
+                    <div class="alert alert-warning">
+                        <h4>{{ plantilla.titulo }}</h4>
+                        <p>{{ plantilla.descripcion }}</p>
+                        <p><strong>Prioridad:</strong> {{ plantilla.prioridad }}</p>
+                        <p><strong>Tiempo estimado:</strong> {{ plantilla.tiempo_estimado }}</p>
+                    </div>
+                    
+                    <p class="text-danger">Esta acción no se puede deshacer.</p>
+                    
+                    <form method="post" class="d-flex justify-content-between">
+                        {% csrf_token %}
+                        <a href="{% url 'lista_plantillas' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Eliminar Plantilla
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
