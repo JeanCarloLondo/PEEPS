@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6f42c1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>PEEPS - Sistema de Gestión de Tareas</title>
     
     <!-- Bootstrap CSS -->
@@ -11,43 +15,146 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* Estilos personalizados */
+        /* Optimizaciones para dispositivos móviles */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+            }
+
+            .mobile-touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            .mobile-nav {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+
+            .mobile-bottom-spacing {
+                margin-bottom: env(safe-area-inset-bottom);
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+
+            .dropdown-menu {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                margin: 0;
+                border-radius: 1rem 1rem 0 0;
+                max-height: 80vh;
+                overflow-y: auto;
+                transform: translateY(100%);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .dropdown-menu.show {
+                transform: translateY(0);
+            }
+
+            .table-responsive {
+                margin: 0 -15px;
+                padding: 0 15px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* Mejoras de rendimiento */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .content-visibility-auto {
+            content-visibility: auto;
+        }
+
+        /* Variables CSS */
+        :root {
+            --primary-color: #6f42c1;
+            --primary-hover: #5a32a3;
+            --header-height: 60px;
+        }
+
+        /* Estilos base mejorados */
+        body {
+            min-height: 100vh;
+            padding-top: var(--header-height);
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Navbar responsivo */
+        .navbar {
+            height: var(--header-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            background-color: #fff;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar.nav-up {
+            transform: translateY(-100%);
+        }
+
         .navbar-brand {
             font-weight: bold;
-            color: #6f42c1 !important;
+            color: var(--primary-color) !important;
         }
         
         .nav-link {
             color: #495057;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
         }
         
         .nav-link:hover {
-            color: #6f42c1;
+            color: var(--primary-color);
         }
         
         .nav-link.active {
-            color: #6f42c1 !important;
+            color: var(--primary-color) !important;
             font-weight: bold;
         }
         
         .btn-primary {
-            background-color: #6f42c1;
-            border-color: #6f42c1;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.2s ease;
         }
         
         .btn-primary:hover {
-            background-color: #5a32a3;
-            border-color: #5a32a3;
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
         }
         
         .btn-outline-primary {
-            color: #6f42c1;
-            border-color: #6f42c1;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
         }
         
         .btn-outline-primary:hover {
-            background-color: #6f42c1;
-            border-color: #6f42c1;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
         }
         
         .badge {
@@ -56,12 +163,19 @@
         
         .card {
             border-radius: 0.5rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .card-header {
             background-color: #f8f9fa;
             border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            border-radius: calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0 !important;
         }
         
         .notification-badge {
@@ -70,18 +184,63 @@
             right: 0;
             transform: translate(50%, -50%);
         }
+
+        /* Mejoras de accesibilidad */
+        @media (hover: none) {
+            .nav-link, .btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            .dropdown-item {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* Animaciones optimizadas */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Scrollbar personalizado */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
     </style>
 </head>
-<body>
+<body class="custom-scrollbar">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm mobile-nav">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
+            <a class="navbar-brand d-flex align-items-center mobile-touch-target" href="{% url 'index' %}">
                 <i class="fas fa-tasks me-2"></i>
-                PEEPS
+                <span class="d-none d-sm-inline">PEEPS</span>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler mobile-touch-target" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
@@ -91,33 +250,38 @@
                         <!-- Menú para Jefes -->
                         <ul class="navbar-nav me-auto">
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_jefe' %}active{% endif %}" 
+                                <a class="nav-link mobile-touch-target {% if request.resolver_match.url_name == 'dashboard_jefe' %}active{% endif %}" 
                                    href="{% url 'dashboard_jefe' %}">
-                                    <i class="fas fa-home me-1"></i> Panel Principal
+                                    <i class="fas fa-home me-1"></i>
+                                    <span class="d-none d-sm-inline">Panel Principal</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'jefe_crear_tarea' %}active{% endif %}" 
+                                <a class="nav-link mobile-touch-target {% if request.resolver_match.url_name == 'jefe_crear_tarea' %}active{% endif %}" 
                                    href="{% url 'jefe_crear_tarea' %}">
-                                    <i class="fas fa-plus me-1"></i> Crear Tarea
+                                    <i class="fas fa-plus me-1"></i>
+                                    <span class="d-none d-sm-inline">Crear Tarea</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'revisar_tareas' %}active{% endif %}" 
+                                <a class="nav-link mobile-touch-target {% if request.resolver_match.url_name == 'revisar_tareas' %}active{% endif %}" 
                                    href="{% url 'revisar_tareas' %}">
-                                    <i class="fas fa-clipboard-check me-1"></i> Revisar Tareas
+                                    <i class="fas fa-clipboard-check me-1"></i>
+                                    <span class="d-none d-sm-inline">Revisar Tareas</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'jefe_empleados' %}active{% endif %}" 
+                                <a class="nav-link mobile-touch-target {% if request.resolver_match.url_name == 'jefe_empleados' %}active{% endif %}" 
                                    href="{% url 'jefe_empleados' %}">
-                                    <i class="fas fa-users me-1"></i> Empleados
+                                    <i class="fas fa-users me-1"></i>
+                                    <span class="d-none d-sm-inline">Empleados</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'lista_plantillas' %}active{% endif %}" 
+                                <a class="nav-link mobile-touch-target {% if request.resolver_match.url_name == 'lista_plantillas' %}active{% endif %}" 
                                    href="{% url 'lista_plantillas' %}">
-                                    <i class="fas fa-copy me-1"></i> Plantillas
+                                    <i class="fas fa-copy me-1"></i>
+                                    <span class="d-none d-sm-inline">Plantillas</span>
                                 </a>
                             </li>
                         </ul>
@@ -125,9 +289,10 @@
                         <!-- Menú para Empleados -->
                         <ul class="navbar-nav me-auto">
                             <li class="nav-item">
-                                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_empleado' %}active{% endif %}" 
+                                <a class="nav-link mobile-touch-target {% if request.resolver_match.url_name == 'dashboard_empleado' %}active{% endif %}" 
                                    href="{% url 'dashboard_empleado' %}">
-                                    <i class="fas fa-home me-1"></i> Mis Tareas
+                                    <i class="fas fa-home me-1"></i>
+                                    <span class="d-none d-sm-inline">Mis Tareas</span>
                                 </a>
                             </li>
                         </ul>
@@ -136,44 +301,44 @@
                     <!-- Menú de usuario -->
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                            <a class="nav-link dropdown-toggle mobile-touch-target" href="#" id="navbarDropdown" role="button" 
                                data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-bell me-1"></i>
                                 {% if notificaciones %}
                                     <span class="badge bg-danger notification-badge">{{ notificaciones|length }}</span>
                                 {% endif %}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <ul class="dropdown-menu dropdown-menu-end custom-scrollbar" aria-labelledby="navbarDropdown">
                                 {% if notificaciones %}
                                     {% for notificacion in notificaciones %}
-                                        <li><a class="dropdown-item" href="#">{{ notificacion.mensaje }}</a></li>
+                                        <li><a class="dropdown-item mobile-touch-target" href="#">{{ notificacion.mensaje }}</a></li>
                                     {% endfor %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         {% if user.empleadoperfil.es_jefe %}
-                                            <a class="dropdown-item" href="{% url 'marcar_notificaciones_leidas_Jefe' %}">
+                                            <a class="dropdown-item mobile-touch-target" href="{% url 'marcar_notificaciones_leidas_Jefe' %}">
                                                 Marcar todas como leídas
                                             </a>
                                         {% else %}
-                                            <a class="dropdown-item" href="{% url 'marcar_notificaciones_leidas' %}">
+                                            <a class="dropdown-item mobile-touch-target" href="{% url 'marcar_notificaciones_leidas' %}">
                                                 Marcar todas como leídas
                                             </a>
                                         {% endif %}
                                     </li>
                                 {% else %}
-                                    <li><a class="dropdown-item" href="#">No hay notificaciones nuevas</a></li>
+                                    <li><a class="dropdown-item mobile-touch-target" href="#">No hay notificaciones nuevas</a></li>
                                 {% endif %}
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                            <a class="nav-link dropdown-toggle mobile-touch-target" href="#" id="userDropdown" role="button" 
                                data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user me-1"></i>
-                                {{ user.username }}
+                                <span class="d-none d-sm-inline">{{ user.username }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'logout' %}">
+                                    <a class="dropdown-item mobile-touch-target" href="{% url 'logout' %}">
                                         <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
                                     </a>
                                 </li>
@@ -183,13 +348,15 @@
                 {% else %}
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
+                            <a class="nav-link mobile-touch-target" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>
+                                <span class="d-none d-sm-inline">Iniciar Sesión</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'registro_empleado' %}">
-                                <i class="fas fa-user-plus me-1"></i> Registrarse
+                            <a class="nav-link mobile-touch-target" href="{% url 'registro_empleado' %}">
+                                <i class="fas fa-user-plus me-1"></i>
+                                <span class="d-none d-sm-inline">Registrarse</span>
                             </a>
                         </li>
                     </ul>
@@ -198,20 +365,63 @@
         </div>
     </nav>
 
-    <!-- Contenido principal -->
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+    <!-- Main Content -->
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
 
-    <!-- Footer -->
-    <footer class="bg-light border-top mt-5 py-3">
-        <div class="container text-center">
-            <p class="text-muted mb-0">© {% now "Y" %} PEEPS - Sistema de Gestión de Tareas</p>
-        </div>
-    </footer>
-
-    <!-- Bootstrap Bundle with Popper -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ocultar navbar al hacer scroll hacia abajo
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.navbar');
+        
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                navbar.classList.add('nav-up');
+            } else {
+                navbar.classList.remove('nav-up');
+            }
+            lastScrollTop = scrollTop;
+        });
+
+        // Cerrar menú al hacer clic en un enlace (móvil)
+        document.querySelectorAll('.navbar-nav a.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const navbarCollapse = document.querySelector('.navbar-collapse');
+                if (navbarCollapse.classList.contains('show')) {
+                    document.querySelector('.navbar-toggler').click();
+                }
+            });
+        });
+
+        // Mejorar comportamiento de dropdowns en móvil
+        if (window.innerWidth < 768) {
+            document.querySelectorAll('.dropdown-toggle').forEach(dropdown => {
+                dropdown.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const menu = dropdown.nextElementSibling;
+                    menu.classList.toggle('show');
+                    if (menu.classList.contains('show')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            // Cerrar dropdown al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    </script>
 </body>
 </html> 
