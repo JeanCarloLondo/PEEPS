@@ -128,7 +128,7 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-4">
-                            <label class="form-label">Calificación</label>
+                            <label class="form-label">Calificación <span class="text-danger">*</span></label>
                             <div class="star-rating">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="rating-stars me-3">
@@ -141,7 +141,7 @@
                                     <span class="selected-rating text-warning fw-bold fs-4">0</span>
                                     <span class="ms-1 fs-4">/5</span>
                                 </div>
-                                {{ form.puntaje|add_class:"d-none" }}
+                                <input type="hidden" name="puntaje" id="{{ form.puntaje.auto_id }}" value="">
                             </div>
                             {% if form.puntaje.errors %}
                             <div class="invalid-feedback d-block">
@@ -166,7 +166,7 @@
                                     {{ error }}
                                     {% endfor %}
                                 </div>
-                            {% endif %}
+                                {% endif %}
                             </div>
                             {% endif %}
                         {% endfor %}
@@ -182,7 +182,7 @@
             <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const stars = document.querySelectorAll('.star-rating-item');
-                const ratingInput = document.querySelector('{{ form.puntaje.auto_id }}');
+                const ratingInput = document.getElementById('{{ form.puntaje.auto_id }}');
                 const ratingDisplay = document.querySelector('.selected-rating');
                 
                 // Función para actualizar las estrellas
@@ -227,11 +227,6 @@
                         });
                     });
                 });
-                
-                // Inicializar con el valor actual si existe
-                if (ratingInput.value) {
-                    updateStars(parseInt(ratingInput.value));
-                }
             });
             </script>
             {% elif calificacion %}
@@ -255,10 +250,12 @@
 
             {% if not tarea.completada %}
             <div class="d-flex flex-wrap gap-2 mt-4">
-                <a href="{% url 'detalle_tarea' tarea.id %}" class="btn btn-primary">
+                {% if not tarea.aceptada_por.exists %}
+                <a href="{% url 'editar_tarea' tarea.id %}" class="btn btn-primary">
                     <i class="fas fa-edit me-1"></i>
                     Editar tarea
                 </a>
+                {% endif %}
                 <form method="post" action="{% url 'eliminar_tarea' tarea.id %}" class="d-inline-block"
                       onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta tarea?');">
                     {% csrf_token %}

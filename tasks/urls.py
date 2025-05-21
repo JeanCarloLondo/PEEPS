@@ -49,4 +49,5 @@ urlpatterns += [
 urlpatterns += [
     path('jefe/eliminar-tarea/<int:tarea_id>/', views.eliminar_tarea, name='eliminar_tarea'),  # Eliminar tarea
     path('jefe/tarea/<int:tarea_id>/', views.detalle_tarea, name='detalle_tarea'),  # Detalles de tarea
+    path('jefe/tarea/<int:tarea_id>/editar/', views.editar_tarea, name='editar_tarea'),  # Editar tarea
 ]

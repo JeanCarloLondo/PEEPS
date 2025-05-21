@@ -601,3 +601,39 @@ def usar_plantilla(request, plantilla_id):
     }
     
     return redirect('jefe_crear_tarea')
+
+@login_required
+def editar_tarea(request, tarea_id):
+    if not request.user.empleadoperfil.es_jefe:
+        messages.error(request, "No tienes permiso para realizar esta acción.")
+        return redirect('index')
+    
+    tarea = get_object_or_404(Tarea, id=tarea_id, jefe=request.user)
+    
+    # Verificar si la tarea ya ha sido aceptada
+    if tarea.aceptada_por.exists():
+        messages.error(request, "No se puede editar una tarea que ya ha sido aceptada por un empleado.")
+        return redirect('detalle_tarea', tarea_id=tarea.id)
+    
+    if request.method == 'POST':
+        form = CrearTareaForm(request.POST, instance=tarea)
+        form.fields['empleados'].queryset = EmpleadoPerfil.objects.filter(
+            tienda=request.user.empleadoperfil.tienda, 
+            es_jefe=False
+        )
+        
+        if form.is_valid():
+            tarea = form.save()
+            messages.success(request, "Tarea actualizada exitosamente.")
+            return redirect('detalle_tarea', tarea_id=tarea.id)
+    else:
+        form = CrearTareaForm(instance=tarea)
+        form.fields['empleados'].queryset = EmpleadoPerfil.objects.filter(
+            tienda=request.user.empleadoperfil.tienda, 
+            es_jefe=False
+        )
+    
+    return render(request, 'tasks/editar_tarea.html', {
+        'form': form,
+        'tarea': tarea
+    })

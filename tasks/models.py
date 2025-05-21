@@ -85,12 +85,12 @@ class Evidencia(models.Model):
 
 class Calificacion(models.Model):
     tarea = models.OneToOneField(Tarea, on_delete=models.CASCADE)
-    puntaje = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)], default=3)
+    puntaje = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
     comentario = models.TextField(blank=True)
     
-def __str__(self):
-    return f"Calificación: {self.puntuacion} - {self.tarea.titulo}"
-    
+    def __str__(self):
+        return f"Calificación: {self.puntaje} - {self.tarea.titulo}"
+
 # This model is for notifications related to tasks and employees.
 class Notificacion(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -100,6 +100,7 @@ class Notificacion(models.Model):
 
     def __str__(self):
         return f"Para {self.usuario.username} - {'Leída' if self.leida else 'No leída'}"
+
 class AceptacionTarea(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
     empleado = models.ForeignKey(EmpleadoPerfil, on_delete=models.CASCADE)

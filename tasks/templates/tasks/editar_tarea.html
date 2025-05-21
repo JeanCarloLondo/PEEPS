@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Editar Tarea</h2>
+                    <a href="{% url 'detalle_tarea' tarea.id %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="{{ form.titulo.id_for_label }}">Título</label>
+                            {{ form.titulo|add_class:"form-control" }}
+                            {% if form.titulo.errors %}
+                            <div class="text-danger">
+                                {{ form.titulo.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                            {{ form.descripcion|add_class:"form-control" }}
+                            {% if form.descripcion.errors %}
+                            <div class="text-danger">
+                                {{ form.descripcion.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.tiempo_estimado.id_for_label }}">Tiempo Estimado (formato: hh:mm:ss)</label>
+                            {{ form.tiempo_estimado|add_class:"form-control" }}
+                            {% if form.tiempo_estimado.errors %}
+                            <div class="text-danger">
+                                {{ form.tiempo_estimado.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.prioridad.id_for_label }}">Prioridad</label>
+                            {{ form.prioridad|add_class:"form-control" }}
+                            {% if form.prioridad.errors %}
+                            <div class="text-danger">
+                                {{ form.prioridad.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label>Asignar a empleados</label>
+                            <div class="border rounded p-3">
+                                {{ form.empleados }}
+                            </div>
+                            {% if form.empleados.errors %}
+                            <div class="text-danger">
+                                {{ form.empleados.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                            <a href="{% url 'detalle_tarea' tarea.id %}" class="btn btn-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
