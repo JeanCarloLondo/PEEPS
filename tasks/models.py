@@ -24,7 +24,7 @@ class Tarea(models.Model):
     descripcion = models.TextField()
     jefe = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tareas_creadas')
     empleados = models.ManyToManyField(EmpleadoPerfil, related_name='tareas_asignadas')
-    tiempo_estimado = models.DurationField()
+    tiempo_estimado = models.DurationField(help_text="Formato: HH:MM")
     fecha_asignacion = models.DateTimeField(auto_now_add=True)
     completada = models.BooleanField(default=False)
     fecha_completada = models.DateTimeField(null=True, blank=True)
@@ -44,8 +44,14 @@ class Tarea(models.Model):
         if self.completada and self.fecha_completada:
             aceptacion = AceptacionTarea.objects.filter(tarea=self).order_by('fecha_aceptacion').first()
             if aceptacion:
-                return self.fecha_completada - aceptacion.fecha_aceptacion
+                duracion = self.fecha_completada - aceptacion.fecha_aceptacion
+                # Convertir a horas y minutos
+                total_seconds = int(duracion.total_seconds())
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                return timedelta(hours=hours, minutes=minutes)
             return timedelta(0)  # Si no hay aceptación, devuelve 0
+        return None  # Si no está completada, devuelve None
 
 class PlantillaTarea(models.Model):
     titulo = models.CharField(max_length=200)

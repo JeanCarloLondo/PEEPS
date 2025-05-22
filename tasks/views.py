@@ -91,8 +91,25 @@ def jefe_crear_tarea(request):
         if form.is_valid():
             tarea = form.save(commit=False)
             tarea.jefe = request.user
+            
+            # Asegurarnos de que el tiempo_estimado sea un timedelta válido
+            tiempo_str = request.POST.get('tiempo_estimado', '')
+            if tiempo_str:
+                try:
+                    # Parsear el formato HH:MM
+                    horas, minutos = map(int, tiempo_str.split(':'))
+                    tarea.tiempo_estimado = timedelta(hours=horas, minutes=minutos)
+                except ValueError:
+                    messages.error(request, "Formato de tiempo inválido. Use HH:MM")
+                    return render(request, 'jefe_crear_tarea.html', {
+                        'form': form,
+                        'tareas': tareas,
+                        'plantillas': plantillas
+                    })
+            
             tarea.save()
             form.save_m2m()
+            
             # Notificar a cada empleado asignado
             for emp in form.cleaned_data['empleados']:
                 Notificacion.objects.create(
@@ -102,30 +119,25 @@ def jefe_crear_tarea(request):
             return redirect('jefe_crear_tarea')
     else:
         initial_data = {}
-        # Si hay datos de plantilla en la sesión, usarlos como valores iniciales
         if 'plantilla_tarea' in request.session:
             initial_data = request.session.pop('plantilla_tarea')
-            # Convertir el tiempo estimado a timedelta
             if 'tiempo_estimado' in initial_data:
                 try:
-                    # Si es un número (minutos)
-                    if isinstance(initial_data['tiempo_estimado'], (int, float)):
-                        minutos = int(initial_data['tiempo_estimado'])
-                    # Si es una cadena que representa tiempo (HH:MM:SS)
+                    if isinstance(initial_data['tiempo_estimado'], timedelta):
+                        # Si ya es un timedelta, convertirlo a formato HH:MM
+                        total_seconds = int(initial_data['tiempo_estimado'].total_seconds())
+                        hours = total_seconds // 3600
+                        minutes = (total_seconds % 3600) // 60
+                        initial_data['tiempo_estimado'] = f"{hours:02d}:{minutes:02d}"
                     elif ':' in str(initial_data['tiempo_estimado']):
+                        # Si es una cadena en formato HH:MM:SS, convertir a HH:MM
                         tiempo_partes = str(initial_data['tiempo_estimado']).split(':')
                         horas = int(tiempo_partes[0])
                         minutos = int(tiempo_partes[1])
-                        segundos = int(tiempo_partes[2]) if len(tiempo_partes) > 2 else 0
-                        minutos = horas * 60 + minutos + segundos // 60
-                    else:
-                        # Si es una cadena que representa minutos
-                        minutos = int(initial_data['tiempo_estimado'])
-                    
-                    initial_data['tiempo_estimado'] = timedelta(minutes=minutos)
+                        initial_data['tiempo_estimado'] = f"{horas:02d}:{minutos:02d}"
                 except (ValueError, IndexError):
                     messages.error(request, "Error al procesar el tiempo estimado de la plantilla.")
-                    initial_data['tiempo_estimado'] = timedelta(minutes=0)
+                    initial_data['tiempo_estimado'] = "00:00"
         
         form = CrearTareaForm(initial=initial_data)
         form.fields['empleados'].queryset = empleados
@@ -589,14 +601,17 @@ def usar_plantilla(request, plantilla_id):
     plantilla = get_object_or_404(PlantillaTarea, id=plantilla_id, jefe=request.user)
     nueva_tarea = plantilla.crear_tarea()
     
-    # Convertir el tiempo_estimado a minutos antes de guardarlo en la sesión
-    minutos_totales = int(plantilla.tiempo_estimado.total_seconds() / 60)
+    # Convertir el tiempo_estimado a formato hh:mm
+    total_seconds = int(plantilla.tiempo_estimado.total_seconds())
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    tiempo_formateado = f"{hours:02d}:{minutes:02d}"
     
     # Guardar en sesión para usar en la vista de creación de tarea
     request.session['plantilla_tarea'] = {
         'titulo': nueva_tarea.titulo,
         'descripcion': nueva_tarea.descripcion,
-        'tiempo_estimado': minutos_totales,  # Guardamos directamente el número, no como string
+        'tiempo_estimado': tiempo_formateado,
         'prioridad': nueva_tarea.prioridad
     }
     

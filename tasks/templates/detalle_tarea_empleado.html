@@ -1,3 +1,7 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load duration_filters %}
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -78,6 +82,11 @@
                             </div>
                         </div>
                         {% endif %}
+
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Tiempo estimado</h6>
+                            <p>{{ tarea.tiempo_estimado|format_duration }}</p>
+                        </div>
                     </div>
 
                     {% if evidencias %}
@@ -115,6 +124,13 @@
                         </div>
                     </div>
                     {% endif %}
+
+                    <div>
+                        <h6 class="text-muted mb-2">Tiempo de ejecución:</h6>
+                        <p class="fs-5">
+                            {{ tarea.tiempo_real_ejecucion|format_duration|default:"No registrado" }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </main>

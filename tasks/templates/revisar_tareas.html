@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load duration_filters %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -71,7 +72,7 @@
                                 <div class="col-md-4">
                                     <div class="d-flex align-items-center">
                                         <i class="far fa-clock me-2 text-primary"></i>
-                                        <span>Tiempo estimado: {{ tarea.tiempo_estimado }}</span>
+                                        <span>Tiempo estimado: {{ tarea.tiempo_estimado|format_duration }}</span>
                                     </div>
                                 </div>
                                 <div class="col-md-4">

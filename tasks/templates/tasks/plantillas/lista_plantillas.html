@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load duration_filters %}
 
 {% block content %}
 <div class="container mt-4">
@@ -25,14 +27,12 @@
         <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ plantilla.titulo }}</h5>
-                    <p class="card-text">{{ plantilla.descripcion|truncatechars:100 }}</p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                            Prioridad: {{ plantilla.prioridad }}<br>
-                            Tiempo estimado: {{ plantilla.tiempo_estimado }}
-                        </small>
-                    </p>
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ plantilla.titulo }}</h5>
+                        <small class="text-muted">{{ plantilla.prioridad }}</small>
+                    </div>
+                    <p class="mb-1">{{ plantilla.descripcion|truncatechars:100 }}</p>
+                    <small class="text-muted">Tiempo estimado: {{ plantilla.tiempo_estimado|format_duration }}</small>
                     <div class="btn-group" role="group">
                         <a href="{% url 'usar_plantilla' plantilla.id %}" class="btn btn-success">
                             <i class="fas fa-play"></i> Usar

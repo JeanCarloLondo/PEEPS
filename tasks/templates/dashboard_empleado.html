@@ -1,5 +1,6 @@
 {% load widget_tweaks %}
 {% load static %}
+{% load duration_filters %}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -419,7 +420,7 @@
                           d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
                       <span class="font-medium">Tiempo estimado:</span>
-                      <span class="ml-1">{{ tarea.tiempo_estimado }}</span>
+                      <span class="ml-1">{{ tarea.tiempo_estimado|format_duration }}</span>
                     </div>
                     
                     {% if tarea.prioridad %}
@@ -462,7 +463,7 @@
                           d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
                       <span class="font-medium">Tiempo de ejecución:</span>
-                      <span class="ml-1 font-semibold">{{ tarea.tiempo_real_ejecucion }}</span>
+                      <span class="ml-1 font-semibold">{{ tarea.tiempo_real_ejecucion|format_duration }}</span>
                     </div>
                     {% endif %}
                     

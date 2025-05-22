@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="{{ form.tiempo_estimado.id_for_label }}">Tiempo Estimado (formato: hh:mm:ss)</label>
+                            <label for="{{ form.tiempo_estimado.id_for_label }}">Tiempo Estimado (formato: hh:mm)</label>
                             {{ form.tiempo_estimado|add_class:"form-control" }}
                             {% if form.tiempo_estimado.errors %}
                             <div class="text-danger">

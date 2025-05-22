@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load duration_filters %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -47,7 +48,7 @@
                             </div>
                             <div class="mb-4">
                                 <h6 class="text-muted mb-2">Tiempo estimado</h6>
-                                <p>{{ tarea.tiempo_estimado }}</p>
+                                <p>{{ tarea.tiempo_estimado|format_duration }}</p>
                             </div>
                             <div class="mb-4">
                                 <h6 class="text-muted mb-2">Fecha de asignación</h6>
@@ -79,7 +80,7 @@
                                 <div class="card-body">
                                     <h6 class="text-muted mb-2">Tiempo de ejecución:</h6>
                                     <p class="fs-5">
-                                        {{ tarea.tiempo_real_ejecucion|default:"No registrado" }}
+                                        {{ tarea.tiempo_real_ejecucion|format_duration|default:"No registrado" }}
                                     </p>
                                     {% if tarea.tiempo_real_ejecucion %}
                                     <p class="small text-muted mt-1">

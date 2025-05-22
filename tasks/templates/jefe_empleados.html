@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% load humanize %}
+{% load duration_filters %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -337,12 +338,12 @@
                                                                                         </td>
                                                                                         <td>
                                                                                             <span class="badge bg-primary">
-                                                                                                {{ task_detail.tiempo_estimado }}
+                                                                                                {{ task_detail.tiempo_estimado|format_duration }}
                                                                                             </span>
                                                                                         </td>
                                                                                         <td>
                                                                                             <span class="badge bg-secondary">
-                                                                                                {{ task_detail.tiempo_real_ejecucion }}
+                                                                                                {{ task_detail.tiempo_real_ejecucion|format_duration }}
                                                                                             </span>
                                                                                         </td>
                                                                                         <td>
