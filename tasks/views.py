@@ -167,7 +167,7 @@ def detalle_tarea(request, tarea_id):
     evidencias = Evidencia.objects.filter(tarea=tarea)
     calificacion = Calificacion.objects.filter(tarea=tarea).first()
 
-    form = None  # 👈 aseguramos que 'form' existe
+    form = None  
 
     if request.method == 'POST' and tarea.completada and not calificacion:
         form = CalificacionForm(request.POST)
@@ -409,7 +409,7 @@ def dashboard_empleado(request):
             evidencia.save()
 
             tarea.completada = True
-            tarea.fecha_completada = timezone.now()
+            tarea.fecha_completada = localtime()  # Usar localtime() aquí
             Notificacion.objects.create(
                 usuario=tarea.jefe,
                 mensaje=f"{request.user.username} ha completado la tarea: {tarea.titulo}")
